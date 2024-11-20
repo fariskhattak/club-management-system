@@ -102,10 +102,19 @@ The frontend is built using **Next.js** with TypeScript, providing a server-rend
    ```
    - This will start the production server on `http://localhost:3000`.
 
-### Configuration
+### Environment Configuration
 
-- Ensure that the backend server is running before starting the frontend to prevent CORS issues.
-- The Next.js app will make API requests to `http://localhost:5001`. Update the API URL in the frontend `.env.local` file if necessary.
+1. Create a `.env.local` file in the `frontend` directory to configure environment variables.
+2. Add the following line to the file:
+
+   ```env
+   REACT_APP_API_URL=http://localhost:5001/api
+   ```
+
+   - This URL points to the backend server for API requests.
+   - Ensure the backend server is running before starting the frontend.
+
+3. The `.env.local` file should not be committed to version control. Add it to `.gitignore` if it’s not already ignored.
 
 ### TypeScript Notes
 
