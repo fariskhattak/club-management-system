@@ -1,9 +1,12 @@
 # app.py
 from flask import Flask, jsonify, request
+from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from config import DATABASE_URI
 
 app = Flask(__name__)
+CORS(app, resources={r"/api/*": {"origins": "*"}})
+
 app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URI
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
@@ -13,7 +16,7 @@ db = SQLAlchemy(app)
 # Define the Club model
 class Club(db.Model):
     __tablename__ = 'Clubs'
-    club_id = db.Column(db.Integer, primary_key=True)
+    club_id = db.Column(db.Integer, primary_key=True, autoincrement=True)  # Auto-increment
     club_name = db.Column(db.String(100), nullable=False)
     club_description = db.Column(db.Text)
     founded_date = db.Column(db.String(50))

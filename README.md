@@ -61,12 +61,12 @@ The backend is built using **Flask** (Python) and handles the server-side logic,
 
 ## Frontend Setup
 
-The frontend is built using **React** and provides a user interface for interacting with the backend API.
+The frontend is built using **Next.js** with TypeScript, providing a server-rendered React framework for improved performance and SEO.
 
 ### Prerequisites
 
 - Node.js installed
-- `npm` package manager
+- `npm` or `yarn` package manager
 
 ### Installation
 
@@ -79,14 +79,53 @@ The frontend is built using **React** and provides a user interface for interact
    ```bash
    npm install
    ```
-
-3. **Run the Frontend Server:**
+   *or if using yarn:*
    ```bash
-   npm start
+   yarn install
+   ```
+
+3. **Run the Development Server:**
+   ```bash
+   npm run dev
+   ```
+   *or if using yarn:*
+   ```bash
+   yarn dev
    ```
    - The frontend will start on `http://localhost:3000`.
 
-### Notes
+4. **Build for Production:**
+   To build the app for production:
+   ```bash
+   npm run build
+   npm start
+   ```
+   - This will start the production server on `http://localhost:3000`.
 
-- Ensure the backend server is running before starting the frontend to prevent CORS issues.
-- The React app will make API requests to `http://localhost:5000`.
+### Configuration
+
+- Ensure that the backend server is running before starting the frontend to prevent CORS issues.
+- The Next.js app will make API requests to `http://localhost:5001`. Update the API URL in the frontend `.env.local` file if necessary.
+
+### TypeScript Notes
+
+- This project uses TypeScript for type safety. Type definitions can be found in the `types` directory.
+- To check for TypeScript errors, run:
+  ```bash
+  npm run type-check
+  ```
+
+### Folder Structure
+
+The frontend follows the typical Next.js project structure:
+- `pages/`: Contains all the Next.js pages.
+- `components/`: Reusable UI components.
+- `styles/`: CSS and styling files.
+- `types/`: TypeScript type definitions.
+- `public/`: Static assets like images.
+
+### Additional Features
+
+- **Server-Side Rendering (SSR)** for better SEO and initial load performance.
+- **API Routes** in Next.js for lightweight server-side logic if needed.
+- **Environment Variables** are configured in `.env.local`.

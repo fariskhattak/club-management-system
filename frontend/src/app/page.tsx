@@ -1,101 +1,144 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { useEffect, useState } from "react";
+
+interface Club {
+  club_id: number;
+  club_name: string;
+  club_description: string;
+  founded_date: string;
+  email: string;
+}
+
+const Home = () => {
+  const [clubs, setClubs] = useState<Club[]>([]);
+  const [clubName, setClubName] = useState("");
+  const [clubDescription, setClubDescription] = useState("");
+  const [foundedDate, setFoundedDate] = useState("");
+  const [email, setEmail] = useState("");
+  const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
+  // Fetch clubs from the backend
+  useEffect(() => {
+    fetch(`${API_URL}/clubs`)
+      .then((response) => response.json())
+      .then((data) => setClubs(data))
+      .catch((error) => console.error("Error fetching clubs:", error));
+  }, [API_URL]);
+
+  // Add a new club
+  const addClub = async () => {
+    const newClub = {
+      club_name: clubName,
+      club_description: clubDescription,
+      founded_date: foundedDate,
+      email,
+    };
+
+    const response = await fetch(`${API_URL}/clubs`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(newClub),
+    });
+
+    if (response.ok) {
+      alert("Club added successfully!");
+      setClubName("");
+      setClubDescription("");
+      setFoundedDate("");
+      setEmail("");
+      // Refresh the list of clubs
+      const updatedClubs = await fetch(`${API_URL}/clubs`).then((res) =>
+        res.json()
+      );
+      setClubs(updatedClubs);
+    } else {
+      alert("Error adding club");
+    }
+  };
+
+  // Delete a club
+  const deleteClub = async (clubId: number) => {
+    const response = await fetch(`${API_URL}/clubs/${clubId}`, {
+      method: "DELETE",
+    });
+
+    if (response.ok) {
+      alert(`Club with ID ${clubId} deleted successfully!`);
+      setClubs(clubs.filter((club) => club.club_id !== clubId));
+    } else {
+      alert("Error deleting club");
+    }
+  };
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+    <div className="container mx-auto p-4">
+      <h1 className="text-3xl font-bold mb-4">
+        College Club Management System
+      </h1>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+      {/* Form to Add New Club */}
+      <div className="mb-8">
+        <h2 className="text-2xl font-semibold mb-2">Add a New Club</h2>
+        <input
+          type="text"
+          style={{ color: "blue" }}
+          placeholder="Club Name"
+          value={clubName}
+          onChange={(e) => setClubName(e.target.value)}
+          className="border p-2 mb-2 w-full"
+        />
+        <textarea
+          style={{ color: "blue" }}
+          placeholder="Club Description"
+          value={clubDescription}
+          onChange={(e) => setClubDescription(e.target.value)}
+          className="border p-2 mb-2 w-full"
+        />
+        <input
+          type="text"
+          style={{ color: "blue" }}
+          placeholder="Founded Date"
+          value={foundedDate}
+          onChange={(e) => setFoundedDate(e.target.value)}
+          className="border p-2 mb-2 w-full"
+        />
+        <input
+          type="email"
+          style={{ color: "blue" }}
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="border p-2 mb-2 w-full"
+        />
+        <button
+          onClick={addClub}
+          className="bg-blue-500 text-white px-4 py-2 rounded"
+        >
+          Add Club
+        </button>
+      </div>
+
+      {/* List of Clubs */}
+      <h2 className="text-2xl font-semibold mb-4">Club List</h2>
+      <ul>
+        <div>
+          {clubs.length === 0 ? (
+            <p>No clubs available at the moment.</p>
+          ) : (
+            clubs.map((club) => (
+              <div key={club.club_id}>
+                <h2>{club.club_name}</h2>
+                <p>{club.club_description}</p>
+              </div>
+            ))
+          )}
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      </ul>
     </div>
   );
-}
+};
+
+export default Home;
