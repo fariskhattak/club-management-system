@@ -35,7 +35,7 @@ The backend is built using **Flask** (Python) and handles the server-side logic,
 1. **Clone the Repository:**
    ```bash
    git clone <repository_url>
-   cd CLUB-MANAGEMENT-SYSTEM/backend
+   cd club-management-system/backend
    ```
 
 2. **Install Dependencies:**
