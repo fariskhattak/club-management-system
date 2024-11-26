@@ -9,10 +9,10 @@ const data = [
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
 
-const CustomPieChart: React.FC = () => {
+const PieGraph: React.FC = () => {
   return (
     <div className="w-full h-96 p-4 bg-white rounded-lg shadow-md">
-      <h2 className="text-xl font-bold text-black mb-4">Sample Pie Chart</h2>
+      <h2 className="text-xl font-bold text-black mb-4">Major Distribution</h2>
       <ResponsiveContainer width="100%" height="100%">
         <PieChart>
           <Pie
@@ -36,4 +36,4 @@ const CustomPieChart: React.FC = () => {
   );
 };
 
-export default CustomPieChart;
+export default PieGraph;
