@@ -148,8 +148,16 @@
 import Header from "../components/Header";
 import MemberList from "../components/MemberList";
 import Graph from "../components/Graph";
-import PieChart from "../components/PieChart";
+import CustomPieChart from "../components/CustomPieChart";
 import MenuButtons from "../components/MenuButtons";
+
+const data = [
+  { name: 'Jan', value: 400 },
+  { name: 'Feb', value: 300 },
+  { name: 'Mar', value: 200 },
+  { name: 'Apr', value: 278 },
+  { name: 'May', value: 189 },
+];
 
 export default function Home() {
   return (
@@ -157,14 +165,14 @@ export default function Home() {
       <Header />
       <main className="p-4 grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Graph Section */}
-        {/* <div className="col-span-2 bg-white p-4 shadow rounded">
-          <Graph />
-        </div> */}
+        <div className="col-span-2 bg-white p-4 shadow rounded">
+          <Graph data={data}/>
+        </div>
 
         {/* Pie Chart */}
-        {/* <div className="bg-white p-4 shadow rounded">
-          <PieChart />
-        </div> */}
+        <div className="bg-white p-4 shadow rounded">
+          <CustomPieChart />
+        </div>
 
         {/* Member List */}
         <div className="col-span-3 bg-white p-4 shadow rounded">

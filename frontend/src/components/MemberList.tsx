@@ -8,7 +8,7 @@ const MemberList = () => {
   ];
 
   return (
-    <div>
+    <div className="text-black">
       <h2 className="text-xl font-bold mb-2">Member List</h2>
       <table className="table-auto w-full border">
         <thead>

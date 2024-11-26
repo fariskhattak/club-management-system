@@ -1,21 +1,40 @@
-// components/Graph.tsx
-import { Line } from "react-chartjs-2";
+// components/Component.tsx
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from 'recharts';
 
-const Graph = () => {
-  const data = {
-    labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
-    datasets: [
-      {
-        label: "Activity",
-        data: [10, 20, 15, 30, 25, 35],
-        borderColor: "rgba(75, 192, 192, 1)",
-        backgroundColor: "rgba(75, 192, 192, 0.2)",
-        tension: 0.4,
-      },
-    ],
-  };
+interface DataPoint {
+  name: string;
+  value: number;
+}
 
-  return <Line data={data} />;
+interface GraphProps {
+  data: DataPoint[];
+}
+
+const Graph: React.FC<GraphProps> = ({ data }) => {
+  return (
+    <div className="w-full h-96 p-4 bg-white rounded-lg shadow-md">
+      <h2 className="text-xl font-bold text-gray-800 mb-4">Sample Line Chart</h2>
+      <ResponsiveContainer width="100%" height="100%">
+        <LineChart data={data}>
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis dataKey="name" />
+          <YAxis />
+          <Tooltip />
+          <Legend />
+          <Line type="monotone" dataKey="value" stroke="#8884d8" activeDot={{ r: 8 }} />
+        </LineChart>
+      </ResponsiveContainer>
+    </div>
+  );
 };
 
 export default Graph;
