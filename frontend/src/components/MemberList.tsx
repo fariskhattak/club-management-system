@@ -26,10 +26,13 @@ interface MemberListProps {
   onMemberAdded: () => void; // Callback to notify parent of a new member
 }
 
+const ITEMS_PER_PAGE = 10; // Number of members per page
+
 const MemberList: React.FC<MemberListProps> = ({ currentClub, onMemberAdded }) => {
   const [members, setMembers] = useState<Member[]>([]);
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
   const [searchParams, setSearchParams] = useState({
     first_name: "",
     last_name: "",
@@ -158,6 +161,17 @@ const MemberList: React.FC<MemberListProps> = ({ currentClub, onMemberAdded }) =
     );
   }
 
+  const totalPages = Math.ceil(members.length / ITEMS_PER_PAGE);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const paginatedMembers = members.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
+
   return (
     <div className="text-black">
       <div className="flex flex-col gap-4 mb-4">
@@ -234,31 +248,48 @@ const MemberList: React.FC<MemberListProps> = ({ currentClub, onMemberAdded }) =
 
       {loading ? (
         <p>Loading members...</p>
-      ) : members.length > 0 ? (
-        <table className="table-auto w-full border">
-          <thead>
-            <tr>
-              <th className="border px-4 py-2 text-left align-middle bg-navbar">Name</th>
-              <th className="border px-4 py-2 text-left align-middle bg-navbar">Student ID</th>
-              <th className="border px-4 py-2 text-left align-middle bg-navbar">Email</th>
-              <th className="border px-4 py-2 text-left align-middle bg-navbar">Major</th>
-              <th className="border px-4 py-2 text-left align-middle bg-navbar">Graduation Year</th>
-            </tr>
-          </thead>
-          <tbody>
-            {members.map((member, index) => (
-              <tr key={index}>
-                <td className="border px-4 py-2">{`${member?.first_name || "N/A"} ${
-                  member?.last_name || "N/A"
-                }`}</td>
-                <td className="border px-4 py-2">{member?.student_id || "N/A"}</td>
-                <td className="border px-4 py-2">{member?.email || "N/A"}</td>
-                <td className="border px-4 py-2">{member?.major || "N/A"}</td>
-                <td className="border px-4 py-2">{member?.graduation_year || "N/A"}</td>
+      ) : paginatedMembers.length > 0 ? (
+        <>
+          <table className="table-auto w-full border">
+            <thead>
+              <tr>
+                <th className="border px-4 py-2 text-left align-middle bg-navbar">Name</th>
+                <th className="border px-4 py-2 text-left align-middle bg-navbar">Student ID</th>
+                <th className="border px-4 py-2 text-left align-middle bg-navbar">Email</th>
+                <th className="border px-4 py-2 text-left align-middle bg-navbar">Major</th>
+                <th className="border px-4 py-2 text-left align-middle bg-navbar">Graduation Year</th>
               </tr>
+            </thead>
+            <tbody>
+              {paginatedMembers.map((member, index) => (
+                <tr key={index}>
+                  <td className="border px-4 py-2">{`${member?.first_name || "N/A"} ${member?.last_name || "N/A"
+                    }`}</td>
+                  <td className="border px-4 py-2">{member?.student_id || "N/A"}</td>
+                  <td className="border px-4 py-2">{member?.email || "N/A"}</td>
+                  <td className="border px-4 py-2">{member?.major || "N/A"}</td>
+                  <td className="border px-4 py-2">{member?.graduation_year || "N/A"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          {/* Pagination Controls */}
+          <div className="flex justify-center items-center mt-4 space-x-2">
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+              <button
+                key={page}
+                onClick={() => handlePageChange(page)}
+                className={`px-3 py-1 border rounded ${currentPage === page
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-200 text-gray-800 hover:bg-gray-300"
+                  }`}
+              >
+                {page}
+              </button>
             ))}
-          </tbody>
-        </table>
+          </div>
+        </>
       ) : (
         <p>No members found for this club.</p>
       )}
