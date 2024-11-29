@@ -32,6 +32,8 @@ const MemberList: React.FC<MemberListProps> = ({ currentClub, onMemberAdded }) =
   const [members, setMembers] = useState<Member[]>([]);
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [memberToDelete, setMemberToDelete] = useState<Member | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchParams, setSearchParams] = useState({
     first_name: "",
@@ -149,6 +151,46 @@ const MemberList: React.FC<MemberListProps> = ({ currentClub, onMemberAdded }) =
     }
   };
 
+  const handleRemoveMember = (member: Member) => {
+    setMemberToDelete(member);
+    setIsDeleteModalOpen(true);
+  };
+
+  const confirmDeleteMember = async () => {
+    if (!currentClub || !memberToDelete) return;
+
+    try {
+      const response = await fetch(
+        `http://localhost:5001/api/clubs/${currentClub.club_id}/members/${memberToDelete.member_id}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      if (response.ok) {
+        toast.success("Member removed successfully!");
+
+        // Update the member list after deletion
+        setMembers((prevMembers) =>
+          prevMembers.filter((member) => member.member_id !== memberToDelete.member_id)
+        );
+
+        // Optionally notify parent component
+        onMemberAdded();
+
+        // Close the modal
+        setIsDeleteModalOpen(false);
+        setMemberToDelete(null);
+      } else {
+        const errorData = await response.json();
+        toast.error(errorData.error || "Failed to remove member.");
+      }
+    } catch (error) {
+      console.error("Error removing member:", error);
+      toast.error("An error occurred while removing the member.");
+    }
+  };
+
   useEffect(() => {
     fetchMembers();
   }, [currentClub, onMemberAdded]);
@@ -263,8 +305,27 @@ const MemberList: React.FC<MemberListProps> = ({ currentClub, onMemberAdded }) =
             <tbody>
               {paginatedMembers.map((member, index) => (
                 <tr key={index}>
-                  <td className="border px-4 py-2">{`${member?.first_name || "N/A"} ${member?.last_name || "N/A"
-                    }`}</td>
+                  <td className="border px-4 py-2 flex items-center justify-between group">
+                    <span>{`${member?.first_name || "N/A"} ${member?.last_name || "N/A"}`}</span>
+                    <button
+                      onClick={() => handleRemoveMember(member)}
+                      className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-red-500 hover:text-red-700 ml-2"
+                      title="Remove Member"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        className="w-5 h-5"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M9 3a3 3 0 00-3 3v1H4.5a.75.75 0 000 1.5h15a.75.75 0 000-1.5H18V6a3 3 0 00-3-3H9zM6.75 7.5v12a2.25 2.25 0 002.25 2.25h6a2.25 2.25 0 002.25-2.25v-12H6.75zm3 3a.75.75 0 011.5 0v6a.75.75 0 01-1.5 0v-6zm4.5 0a.75.75 0 011.5 0v6a.75.75 0 01-1.5 0v-6z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </button>
+                  </td>
                   <td className="border px-4 py-2">{member?.student_id || "N/A"}</td>
                   <td className="border px-4 py-2">{member?.email || "N/A"}</td>
                   <td className="border px-4 py-2">{member?.major || "N/A"}</td>
@@ -293,6 +354,36 @@ const MemberList: React.FC<MemberListProps> = ({ currentClub, onMemberAdded }) =
       ) : (
         <p>No members found for this club.</p>
       )}
+
+      {/* Delete Member Modal */}
+      {isDeleteModalOpen && memberToDelete && (
+        <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-lg p-6 w-96">
+            <h2 className="text-lg font-bold text-black mb-4">Confirm Deletion</h2>
+            <p className="text-gray-700">
+              Are you sure you want to remove <strong>{`${memberToDelete.first_name} ${memberToDelete.last_name}`}</strong> from the club? This action cannot be undone.
+            </p>
+            <div className="mt-4 flex space-x-2">
+              <button
+                className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+                onClick={confirmDeleteMember}
+              >
+                Delete
+              </button>
+              <button
+                className="bg-gray-300 text-black px-4 py-2 rounded hover:bg-gray-400"
+                onClick={() => {
+                  setIsDeleteModalOpen(false);
+                  setMemberToDelete(null);
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
 
       {/* Add Member Modal */}
       {isModalOpen && (

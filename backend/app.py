@@ -331,7 +331,124 @@ def search_members(club_id):
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
+@app.route('/api/clubs/<int:club_id>/events/upcoming', methods=['GET'])
+def get_upcoming_events(club_id):
+    now = datetime.now().date()
+    events = Event.query.filter(Event.club_id == club_id, Event.event_date >= now).all()
+    return jsonify([{
+        "event_id": event.event_id,
+        "event_name": event.event_name,
+        "event_description": event.event_description,
+        "event_date": event.event_date.isoformat(),
+        "event_time": event.event_time.isoformat() if event.event_time else None,
+        "location": event.location
+    } for event in events])
 
+@app.route('/api/clubs/<int:club_id>/events/past', methods=['GET'])
+def get_past_events(club_id):
+    now = datetime.now().date()
+    events = Event.query.filter(Event.club_id == club_id, Event.event_date < now).all()
+    return jsonify([{
+        "event_id": event.event_id,
+        "event_name": event.event_name,
+        "event_description": event.event_description,
+        "event_date": event.event_date.isoformat(),
+        "event_time": event.event_time.isoformat() if event.event_time else None,
+        "location": event.location
+    } for event in events])
+
+
+@app.route('/api/clubs/<int:club_id>/sponsors', methods=['GET'])
+def get_club_sponsors(club_id):
+    sponsors = (
+        db.session.query(
+            Sponsor.sponsor_id,
+            Sponsor.sponsor_name,
+            Sponsor.contact_person,
+            Sponsor.contact_email,
+            Sponsor.phone_number,
+            Sponsor.address,
+            SponsorshipContribution.contribution_amount,
+            SponsorshipContribution.contribution_date,
+        )
+        .join(SponsorshipContribution, SponsorshipContribution.sponsor_id == Sponsor.sponsor_id)
+        .filter(SponsorshipContribution.club_id == club_id)
+        .all()
+    )
+
+    sponsor_list = [
+        {
+            "sponsor_id": sponsor.sponsor_id,
+            "sponsor_name": sponsor.sponsor_name,
+            "contact_person": sponsor.contact_person,
+            "contact_email": sponsor.contact_email,
+            "phone_number": sponsor.phone_number,
+            "address": sponsor.address,
+            "contribution_amount": sponsor.contribution_amount,
+            "contribution_date": sponsor.contribution_date,
+        }
+        for sponsor in sponsors
+    ]
+
+    return jsonify({"sponsors": sponsor_list}), 200
+
+
+@app.route('/api/clubs/<int:club_id>/sponsors', methods=['POST'])
+def add_sponsor_or_contribution(club_id):
+    data = request.json
+    try:
+        # Check if sponsor already exists
+        sponsor = Sponsor.query.filter_by(sponsor_name=data['sponsor_name']).first()
+
+        if not sponsor:
+            # If sponsor doesn't exist, add to Sponsors table
+            sponsor = Sponsor(
+                sponsor_name=data['sponsor_name'],
+                contact_person=data.get('contact_person'),
+                contact_email=data.get('contact_email'),
+                phone_number=data.get('phone_number'),
+                address=data.get('address'),
+            )
+            db.session.add(sponsor)
+            db.session.commit()
+
+        # Convert contribution_date to datetime.date
+        contribution_date = datetime.strptime(data['contribution_date'], '%Y-%m-%d').date()
+
+        # Add a new contribution to the SponsorshipContribution table
+        sponsorship = SponsorshipContribution(
+            sponsor_id=sponsor.sponsor_id,
+            club_id=club_id,
+            contribution_amount=data['contribution_amount'],
+            contribution_date=contribution_date,
+        )
+        db.session.add(sponsorship)
+        db.session.commit()
+
+        return jsonify({"message": "Sponsor contribution added successfully"}), 201
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 400
+
+
+@app.route('/api/clubs/<int:club_id>/budget', methods=['GET'])
+def get_club_budget(club_id):
+    budgets = Budget.query.filter_by(club_id=club_id).all()
+    if not budgets:
+        return jsonify({"message": "No budget data found"}), 201
+
+    budget_list = [
+        {
+            "fiscal_year": budget.fiscal_year,
+            "total_budget": budget.total_budget,
+            "spent_amount": budget.spent_amount,
+            "remaining_amount": budget.remaining_amount,
+        }
+        for budget in budgets
+    ]
+    return jsonify({"budget": budget_list}), 200
 
 # Main entry point
 if __name__ == "__main__":

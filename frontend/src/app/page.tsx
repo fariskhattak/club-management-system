@@ -10,7 +10,7 @@ import GraduationGraph from "../components/GraduationGraph";
 import SideNavbar from "../components/SideNavbar";
 import EventView from "../components/EventView";
 import LineGraph from "@/components/LineGraph";
-// import SponsorshipView from "../components/SponsorshipView"; // Placeholder for Sponsorship/Budget View
+import FinancesView from "../components/FinancesView";
 
 interface Club {
   club_id: number;
@@ -132,9 +132,8 @@ export default function Home() {
         );
       case "events":
         return <EventView currentClub={currentClub} />;
-      case "sponsorship":
-        // Placeholder for sponsorship view
-        return <p>Coming soon: Sponsorship/Budget View</p>;
+      case "finances":
+        return <FinancesView currentClub={currentClub} />;
       default:
         return null;
     }
@@ -181,9 +180,9 @@ export default function Home() {
                     Events View
                   </button>
                   <button
-                    className={`px-6 py-3 font-medium ${activeTab === "sponsorship" ? "text-blue-600 border-b-2 border-blue-600" : "text-gray-600"
+                    className={`px-6 py-3 font-medium ${activeTab === "finances" ? "text-blue-600 border-b-2 border-blue-600" : "text-gray-600"
                       }`}
-                    onClick={() => setActiveTab("sponsorship")}
+                    onClick={() => setActiveTab("finances")}
                   >
                     Finances View
                   </button>

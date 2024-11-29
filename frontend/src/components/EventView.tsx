@@ -5,8 +5,8 @@ interface Event {
   event_id: number;
   event_name: string;
   event_description: string;
-  event_date: string;
-  event_time: string;
+  event_date: string; // ISO date
+  event_time: string; // ISO time
   location: string;
 }
 
@@ -23,7 +23,8 @@ interface EventViewProps {
 }
 
 const EventView: React.FC<EventViewProps> = ({ currentClub }) => {
-  const [events, setEvents] = useState<Event[]>([]);
+  const [upcomingEvents, setUpcomingEvents] = useState<Event[]>([]);
+  const [pastEvents, setPastEvents] = useState<Event[]>([]);
   const [selectedEventId, setSelectedEventId] = useState<number | null>(null);
   const [attendance, setAttendance] = useState<Attendance[]>([]);
   const [loadingEvents, setLoadingEvents] = useState(false);
@@ -40,10 +41,16 @@ const EventView: React.FC<EventViewProps> = ({ currentClub }) => {
 
     setLoadingEvents(true);
     try {
-      const response = await fetch(`http://localhost:5001/api/clubs/${currentClub.club_id}/events`);
-      if (response.ok) {
-        const data = await response.json();
-        setEvents(data.events);
+      const [upcomingResponse, pastResponse] = await Promise.all([
+        fetch(`http://localhost:5001/api/clubs/${currentClub.club_id}/events/upcoming`),
+        fetch(`http://localhost:5001/api/clubs/${currentClub.club_id}/events/past`),
+      ]);
+
+      if (upcomingResponse.ok && pastResponse.ok) {
+        const upcomingData = await upcomingResponse.json();
+        const pastData = await pastResponse.json();
+        setUpcomingEvents(upcomingData);
+        setPastEvents(pastData);
       } else {
         toast.error("Failed to fetch events.");
       }
@@ -75,7 +82,7 @@ const EventView: React.FC<EventViewProps> = ({ currentClub }) => {
 
   const handleEventClick = (eventId: number) => {
     if (selectedEventId === eventId) {
-      // If the same event is clicked, collapse it
+      // Collapse expanded event
       setSelectedEventId(null);
       setAttendance([]);
     } else {
@@ -84,13 +91,11 @@ const EventView: React.FC<EventViewProps> = ({ currentClub }) => {
     }
   };
 
-  return (
-    <div className="p-4 bg-white rounded shadow text-black">
-      <h2 className="text-lg font-bold text-black mb-4">Events</h2>
-      {loadingEvents ? (
-        <p>Loading events...</p>
-      ) : events.length > 0 ? (
-        <table className="table-auto w-full border">
+  const renderEventTable = (events: Event[], title: string) => (
+    <>
+      <h2 className="text-lg font-bold text-black mb-4">{title}</h2>
+      {events.length > 0 ? (
+        <table className="table-auto w-full border mb-8">
           <thead>
             <tr>
               <th className="border px-4 py-2 text-left bg-navbar">Event Name</th>
@@ -148,7 +153,20 @@ const EventView: React.FC<EventViewProps> = ({ currentClub }) => {
           </tbody>
         </table>
       ) : (
-        <p>No events found for this club.</p>
+        <p className="mb-8">No events found.</p>
+      )}
+    </>
+  );
+
+  return (
+    <div className="p-4 bg-white rounded shadow text-black">
+      {loadingEvents ? (
+        <p>Loading events...</p>
+      ) : (
+        <>
+          {renderEventTable(upcomingEvents, "Upcoming Events")}
+          {renderEventTable(pastEvents, "Past Events")}
+        </>
       )}
     </div>
   );
