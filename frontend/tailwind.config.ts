@@ -11,6 +11,8 @@ export default {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
+        navbar: "#8884d8",
+        navbar_hover: "#aaa9e6",
       },
     },
   },

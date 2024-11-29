@@ -67,7 +67,6 @@ CREATE TABLE Membership (
     membership_id INTEGER PRIMARY KEY AUTOINCREMENT,
     club_id INTEGER NOT NULL,
     member_id INTEGER NOT NULL,
-    join_date DATE,
     active_status TEXT,
     FOREIGN KEY (club_id) REFERENCES Clubs (club_id),
     FOREIGN KEY (member_id) REFERENCES Members (member_id)
