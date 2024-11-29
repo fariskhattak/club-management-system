@@ -30,8 +30,14 @@ const MemberList: React.FC<MemberListProps> = ({ currentClub, onMemberAdded }) =
   const [members, setMembers] = useState<Member[]>([]);
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [memberToDelete, setMemberToDelete] = useState<Member | null>(null);
+  const [searchParams, setSearchParams] = useState({
+    first_name: "",
+    last_name: "",
+    student_id: "",
+    email: "",
+    major: "",
+    graduation_year: "",
+  });
   const [formData, setFormData] = useState({
     first_name: "",
     last_name: "",
@@ -43,71 +49,58 @@ const MemberList: React.FC<MemberListProps> = ({ currentClub, onMemberAdded }) =
     active_status: "Active",
   });
 
-  useEffect(() => {
-    const fetchMembers = async () => {
-      if (!currentClub) return;
+  const fetchMembers = async () => {
+    if (!currentClub) return;
 
-      setLoading(true);
-      try {
-        const response = await fetch(`http://localhost:5001/api/clubs/${currentClub.club_id}/members`);
-        if (response.ok) {
-          const data = await response.json();
-          setMembers(data["members"]);
-        } else {
-          console.error("Failed to fetch members:", response.statusText);
-        }
-      } catch (error) {
-        console.error("Error fetching members:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchMembers();
-  }, [currentClub, onMemberAdded]);
-
-  const handleRemoveMember = (member: Member) => {
-    setMemberToDelete(member);
-    setIsDeleteModalOpen(true);
-  };
-
-  const confirmDeleteMember = async () => {
-    if (!currentClub || !memberToDelete) return;
-
+    setLoading(true);
     try {
       const response = await fetch(
-        `http://localhost:5001/api/clubs/${currentClub.club_id}/members/${memberToDelete.member_id}`,
-        {
-          method: "DELETE",
-        }
+        `http://localhost:5001/api/clubs/${currentClub.club_id}/members`
+      );
+      if (response.ok) {
+        const data = await response.json();
+        setMembers(data["members"]);
+      } else {
+        console.error("Failed to fetch members:", response.statusText);
+      }
+    } catch (error) {
+      console.error("Error fetching members:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSearch = async () => {
+    if (!currentClub) return;
+
+    setLoading(true);
+    try {
+      const query = new URLSearchParams(searchParams).toString();
+      const response = await fetch(
+        `http://localhost:5001/api/clubs/${currentClub.club_id}/members/search?${query}`
       );
 
       if (response.ok) {
-        toast.success("Member removed successfully!");
+        const data = await response.json();
+        setMembers(data.members);
 
-        // Update the member list after deletion
-        setMembers((prevMembers) =>
-          prevMembers.filter((member) => member.member_id !== memberToDelete.member_id)
-        );
-
-        // Optionally notify parent component
-        onMemberAdded();
-
-        // Close the modal
-        setIsDeleteModalOpen(false);
-        setMemberToDelete(null);
+        if (data.members.length === 0) {
+          toast.info("No members found matching the criteria.");
+        }
       } else {
-        const errorData = await response.json();
-        toast.error(errorData.error || "Failed to remove member.");
+        console.error("Failed to search members:", response.statusText);
       }
     } catch (error) {
-      console.error("Error removing member:", error);
-      toast.error("An error occurred while removing the member.");
+      console.error("Error searching members:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setSearchParams((prev) => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value })); // Update for Add Member form
   };
 
   const handleAddMember = async () => {
@@ -126,16 +119,10 @@ const MemberList: React.FC<MemberListProps> = ({ currentClub, onMemberAdded }) =
       });
 
       if (response.ok) {
-        const result = await response.json();
+        toast.success("Member added successfully!");
 
-        if (result.message === "Member already exists in this club") {
-          toast.info("Member is already in this club.");
-        } else {
-          toast.success("Member added successfully!");
-
-          // Notify parent component to refresh member list and major graph
-          onMemberAdded();
-        }
+        // Notify parent component to refresh member list and major graph
+        onMemberAdded();
 
         // Close the modal and reset the form
         setIsModalOpen(false);
@@ -159,6 +146,9 @@ const MemberList: React.FC<MemberListProps> = ({ currentClub, onMemberAdded }) =
     }
   };
 
+  useEffect(() => {
+    fetchMembers();
+  }, [currentClub, onMemberAdded]);
 
   if (!currentClub) {
     return (
@@ -170,15 +160,78 @@ const MemberList: React.FC<MemberListProps> = ({ currentClub, onMemberAdded }) =
 
   return (
     <div className="text-black">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-bold">Members List</h2>
-        <button
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-          onClick={() => setIsModalOpen(true)}
-        >
-          + Add Member
-        </button>
+      <div className="flex flex-col gap-4 mb-4">
+        <div className="flex justify-between items-center">
+          <h2 className="text-xl font-bold">Members List</h2>
+          <button
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+            onClick={() => setIsModalOpen(true)}
+          >
+            Add Member
+          </button>
+        </div>
+
+        {/* Search Bar */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
+          <input
+            type="text"
+            name="first_name"
+            value={searchParams.first_name}
+            onChange={handleInputChange}
+            placeholder="First Name"
+            className="px-4 py-2 border rounded"
+          />
+          <input
+            type="text"
+            name="last_name"
+            value={searchParams.last_name}
+            onChange={handleInputChange}
+            placeholder="Last Name"
+            className="px-4 py-2 border rounded"
+          />
+          <input
+            type="text"
+            name="student_id"
+            value={searchParams.student_id}
+            onChange={handleInputChange}
+            placeholder="Student ID"
+            className="px-4 py-2 border rounded"
+          />
+          <input
+            type="email"
+            name="email"
+            value={searchParams.email}
+            onChange={handleInputChange}
+            placeholder="Email"
+            className="px-4 py-2 border rounded"
+          />
+          <input
+            type="text"
+            name="major"
+            value={searchParams.major}
+            onChange={handleInputChange}
+            placeholder="Major"
+            className="px-4 py-2 border rounded"
+          />
+          <input
+            type="number"
+            name="graduation_year"
+            value={searchParams.graduation_year}
+            onChange={handleInputChange}
+            placeholder="Graduation Year"
+            className="px-4 py-2 border rounded"
+          />
+        </div>
+        <div className="mt-2">
+          <button
+            onClick={handleSearch}
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          >
+            Search
+          </button>
+        </div>
       </div>
+
       {loading ? (
         <p>Loading members...</p>
       ) : members.length > 0 ? (
@@ -195,27 +248,9 @@ const MemberList: React.FC<MemberListProps> = ({ currentClub, onMemberAdded }) =
           <tbody>
             {members.map((member, index) => (
               <tr key={index}>
-                <td className="border px-4 py-2 flex items-center justify-between group">
-                  <span>{`${member?.first_name || "N/A"} ${member?.last_name || "N/A"}`}</span>
-                  <button
-                    onClick={() => handleRemoveMember(member)}
-                    className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-red-500 hover:text-red-700 ml-2"
-                    title="Remove Member"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                      className="w-5 h-5"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M9 3a3 3 0 00-3 3v1H4.5a.75.75 0 000 1.5h15a.75.75 0 000-1.5H18V6a3 3 0 00-3-3H9zM6.75 7.5v12a2.25 2.25 0 002.25 2.25h6a2.25 2.25 0 002.25-2.25v-12H6.75zm3 3a.75.75 0 011.5 0v6a.75.75 0 01-1.5 0v-6zm4.5 0a.75.75 0 011.5 0v6a.75.75 0 01-1.5 0v-6z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  </button>
-                </td>
+                <td className="border px-4 py-2">{`${member?.first_name || "N/A"} ${
+                  member?.last_name || "N/A"
+                }`}</td>
                 <td className="border px-4 py-2">{member?.student_id || "N/A"}</td>
                 <td className="border px-4 py-2">{member?.email || "N/A"}</td>
                 <td className="border px-4 py-2">{member?.major || "N/A"}</td>
@@ -223,7 +258,6 @@ const MemberList: React.FC<MemberListProps> = ({ currentClub, onMemberAdded }) =
               </tr>
             ))}
           </tbody>
-
         </table>
       ) : (
         <p>No members found for this club.</p>
@@ -313,34 +347,6 @@ const MemberList: React.FC<MemberListProps> = ({ currentClub, onMemberAdded }) =
           </div>
         </div>
       )}
-      {isDeleteModalOpen && memberToDelete && (
-        <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-lg p-6 w-96">
-            <h2 className="text-lg font-bold text-black mb-4">Confirm Deletion</h2>
-            <p className="text-gray-700">
-              Are you sure you want to remove <strong>{`${memberToDelete.first_name} ${memberToDelete.last_name}`}</strong> from the club? This action cannot be undone.
-            </p>
-            <div className="mt-4 flex space-x-2">
-              <button
-                className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-                onClick={confirmDeleteMember}
-              >
-                Delete
-              </button>
-              <button
-                className="bg-gray-300 text-black px-4 py-2 rounded hover:bg-gray-400"
-                onClick={() => {
-                  setIsDeleteModalOpen(false);
-                  setMemberToDelete(null);
-                }}
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
     </div>
   );
 };

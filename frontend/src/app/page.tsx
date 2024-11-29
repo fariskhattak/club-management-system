@@ -5,9 +5,12 @@ import "react-toastify/dist/ReactToastify.css"; // Import toast styles
 
 import Header from "../components/Header";
 import MemberList from "../components/MemberList";
-import LineGraph from "../components/LineGraph";
-import SideNavbar from "../components/SideNavbar";
 import MajorGraph from "../components/MajorGraph";
+import GraduationGraph from "../components/GraduationGraph";
+import SideNavbar from "../components/SideNavbar";
+import EventView from "../components/EventView";
+import LineGraph from "@/components/LineGraph";
+// import SponsorshipView from "../components/SponsorshipView"; // Placeholder for Sponsorship/Budget View
 
 interface Club {
   club_id: number;
@@ -17,21 +20,28 @@ interface Club {
   email: string;
 }
 
-const data = [
-  { name: "Jan", value: 400 },
-  { name: "Feb", value: 300 },
-  { name: "Mar", value: 200 },
-  { name: "Apr", value: 278 },
-  { name: "May", value: 189 },
-];
-
 export default function Home() {
   const [clubs, setClubs] = useState<Club[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentClub, setCurrentClub] = useState<Club | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false); // Modal state
-  const [deleteMessage, setDeleteMessage] = useState(""); // Success/Error message
   const [refreshGraphTrigger, setRefreshGraphTrigger] = useState(0);
+  const [activeTab, setActiveTab] = useState("membership"); // Tracks the selected tab
+
+  const membershipData = [
+    { name: "January", value: 10 },
+    { name: "February", value: 20 },
+    { name: "March", value: 35 },
+    { name: "April", value: 50 },
+    { name: "May", value: 65 },
+    { name: "June", value: 80 },
+    { name: "July", value: 95 },
+    { name: "August", value: 110 },
+    { name: "September", value: 125 },
+    { name: "October", value: 140 },
+    { name: "November", value: 150 },
+    { name: "December", value: 165 },
+  ];
 
   const handleMemberAdded = () => {
     setRefreshGraphTrigger((prev) => prev + 1); // Increment to notify dependent components
@@ -60,6 +70,7 @@ export default function Home() {
   const handleClubSelection = (clubName: string) => {
     const selectedClub = clubs.find((club) => club.club_name === clubName);
     setCurrentClub(selectedClub || null);
+    setActiveTab("membership"); // Reset tab to Membership when a new club is selected
   };
 
   const handleDeleteClub = async () => {
@@ -86,6 +97,49 @@ export default function Home() {
     }
   };
 
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case "membership":
+        return (
+          <>
+            {/* Graphs Row */}
+            {/* <div className="bg-white p-4 shadow rounded mb-4">
+              <LineGraph data={membershipData} />
+            </div> */}
+            <div className="grid grid-cols-12 gap-4 mb-4">
+              <div className="col-span-6 bg-white p-4 shadow rounded">
+                <MajorGraph
+                  currentClub={currentClub}
+                  refreshGraphTrigger={refreshGraphTrigger}
+                />
+              </div>
+              <div className="col-span-6 bg-white p-4 shadow rounded">
+                <GraduationGraph
+                  currentClub={currentClub}
+                  refreshGraphTrigger={refreshGraphTrigger}
+                />
+              </div>
+            </div>
+
+            {/* Member List */}
+            <div className="bg-white p-4 shadow rounded">
+              <MemberList
+                currentClub={currentClub}
+                onMemberAdded={handleMemberAdded}
+              />
+            </div>
+          </>
+        );
+      case "events":
+        return <EventView currentClub={currentClub} />;
+      case "sponsorship":
+        // Placeholder for sponsorship view
+        return <p>Coming soon: Sponsorship/Budget View</p>;
+      default:
+        return null;
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-100 flex">
       {/* Side Navbar */}
@@ -106,35 +160,39 @@ export default function Home() {
               <p className="text-gray-500 mt-2">
                 Please select a club from the side navbar to view its details.
               </p>
-              <div className="mt-4">
-                <svg
-                  className="w-32 h-32 text-gray-400"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M3 15a4 4 0 00-1 3v1a2 2 0 002 2h16a2 2 0 002-2v-1a4 4 0 00-1-3M16 11a4 4 0 11-8 0m8 0a4 4 0 01-8 0m2 0V7a2 2 0 114 0v4"
-                  ></path>
-                </svg>
-              </div>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {/* Graph Section */}
-              <div className="col-span-3 bg-white p-4 shadow rounded">
-                <MajorGraph currentClub={currentClub} refreshGraphTrigger={refreshGraphTrigger}/>
+            <>
+              {/* Tab Navigation */}
+              <div className="bg-white shadow-md mb-4">
+                <div className="flex justify-center space-x-4 border-b">
+                  <button
+                    className={`px-6 py-3 font-medium ${activeTab === "membership" ? "text-blue-600 border-b-2 border-blue-600" : "text-gray-600"
+                      }`}
+                    onClick={() => setActiveTab("membership")}
+                  >
+                    Memberships View
+                  </button>
+                  <button
+                    className={`px-6 py-3 font-medium ${activeTab === "events" ? "text-blue-600 border-b-2 border-blue-600" : "text-gray-600"
+                      }`}
+                    onClick={() => setActiveTab("events")}
+                  >
+                    Events View
+                  </button>
+                  <button
+                    className={`px-6 py-3 font-medium ${activeTab === "sponsorship" ? "text-blue-600 border-b-2 border-blue-600" : "text-gray-600"
+                      }`}
+                    onClick={() => setActiveTab("sponsorship")}
+                  >
+                    Finances View
+                  </button>
+                </div>
               </div>
 
-              {/* Member List */}
-              <div className="col-span-3 bg-white p-4 shadow rounded">
-                <MemberList currentClub={currentClub} onMemberAdded={handleMemberAdded}/>
-              </div>
-            </div>
+              {/* Tab Content */}
+              <div className="grid grid-cols-1 gap-4">{renderTabContent()}</div>
+            </>
           )}
 
           {/* Delete Club Button */}

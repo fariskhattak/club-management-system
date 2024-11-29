@@ -69,9 +69,8 @@ const SideNavbar: React.FC<SideNavbarProps> = ({ clubs, onSelectClub, refreshClu
     <div className={`flex ${isOpen ? "pl-64" : "pl-0"} transition-all duration-300`}>
       {/* Sidebar */}
       <div
-        className={`fixed top-0 left-0 h-full bg-navbar text-white shadow-lg transition-transform transform ${
-          isOpen ? "translate-x-0" : "-translate-x-full"
-        } w-64`}
+        className={`fixed top-0 left-0 h-full bg-navbar text-white shadow-lg transition-transform transform ${isOpen ? "translate-x-0" : "-translate-x-full"
+          } w-64`}
       >
         <div className="p-4 flex items-center justify-between">
           <h1 className="text-xl font-bold">Clubs</h1>
@@ -87,7 +86,7 @@ const SideNavbar: React.FC<SideNavbarProps> = ({ clubs, onSelectClub, refreshClu
             className="px-3 py-1 hover:bg-navbar_hover rounded-full cursor-pointer bg-blue-600 text-white text-center inline-block w-auto mx-3"
             onClick={() => setIsModalOpen(true)}
           >
-            + Add New Club
+            Add New Club
           </li>
           {clubs.map((club, index) => (
             <li
