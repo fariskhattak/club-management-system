@@ -47,12 +47,12 @@ const MajorGraph: React.FC<PieGraphProps> = ({ currentClub, refreshGraphTrigger 
 
           // Group members by major and count occurrences
           const majorCounts = members.reduce((acc: Record<string, number>, member: Member) => {
-            if (member.major) {
+            if (member.major?.trim()) {
               acc[member.major] = (acc[member.major] || 0) + 1;
             }
             return acc;
           }, {});
-
+          
           // Convert to array of { name, value }
           const majorData = Object.entries(majorCounts).map(([major, count]) => ({
             name: major,
@@ -112,7 +112,7 @@ const MajorGraph: React.FC<PieGraphProps> = ({ currentClub, refreshGraphTrigger 
               ))}
             </Pie>
             <Tooltip />
-          </PieChart>
+            </PieChart>
         </ResponsiveContainer>
       ) : (
         <p className="text-gray-600 italic">No majors recorded for this club.</p>

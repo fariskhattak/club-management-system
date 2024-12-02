@@ -1,135 +1,333 @@
-import sqlite3
-from datetime import datetime, timedelta
+from datetime import datetime
+from app import app
+from models import (
+    db,
+    Club,
+    Student,
+    Role,
+    ClubRole,
+    Event,
+    EventAttendance,
+    Membership,
+    Budget,
+    Sponsor,
+    SponsorshipContribution,
+    EventHosting,
+    Expense,
+)
 
-# Connect to SQLite database (or create it)
-connection = sqlite3.connect("database.db")
-cursor = connection.cursor()
 
-# Helper function to execute SQL commands
-def execute_script(cursor, commands):
-    for command in commands:
-        cursor.execute(command)
+# Connect to the database
+def seed_database():
+    with app.app_context():
+        db.drop_all()
+        db.create_all()
 
-# Test data insertion script
-try:
-    # Insert data into Clubs
-    clubs = [
-        ("Coding Club", "A club for coding enthusiasts.", "2015-08-20", "codingclub@university.edu", "Dr. Smith"),
-        ("Art Club", "Explore creativity through various art forms.", "2010-03-15", "artclub@university.edu", "Prof. Johnson"),
-        ("Robotics Club", "Build and compete with robots.", "2018-09-01", "robotics@university.edu", "Dr. Lee")
-    ]
-    cursor.executemany("""
-    INSERT INTO Clubs (club_name, club_description, founded_date, contact_email, faculty_advisor)
-    VALUES (?, ?, ?, ?, ?)""", clubs)
+        # Clubs
+        clubs = [
+            Club(
+                club_name="Art Club",
+                club_description="A club for art enthusiasts",
+                founded_date=datetime(2018, 9, 1),
+                contact_email="artclub@example.com",
+                faculty_advisor="Dr. Emily Carter",
+            ),
+            Club(
+                club_name="Robotics Club",
+                club_description="Exploring robotics and AI",
+                founded_date=datetime(2016, 5, 20),
+                contact_email="robotics@example.com",
+                faculty_advisor="Dr. James Anderson",
+            ),
+            Club(
+                club_name="Literature Club",
+                club_description="Discussing and appreciating literature",
+                founded_date=datetime(2019, 2, 14),
+                contact_email="literature@example.com",
+                faculty_advisor="Dr. Anna Taylor",
+            ),
+        ]
+        db.session.add_all(clubs)
+        db.session.commit()
 
-    # Insert data into Members
-    members = [
-        ("S123", "Alice", "Johnson", "alice.johnson@university.edu", "1234567890", "Computer Science", 2025),
-        ("S124", "Bob", "Smith", "bob.smith@university.edu", "9876543210", "Mechanical Engineering", 2024),
-        ("S125", "Charlie", "Brown", "charlie.brown@university.edu", "5556667777", "Art History", 2026),
-    ]
-    cursor.executemany("""
-    INSERT INTO Members (student_id, first_name, last_name, email, phone_number, major, graduation_year)
-    VALUES (?, ?, ?, ?, ?, ?, ?)""", members)
+        # Members
+        members = [
+            Student(
+                student_id="S001",
+                first_name="Alice",
+                last_name="Smith",
+                email="alice.smith@example.com",
+                phone_number="1234567890",
+                major="Fine Arts",
+                graduation_year=2025,
+            ),
+            Student(
+                student_id="S002",
+                first_name="Bob",
+                last_name="Johnson",
+                email="bob.johnson@example.com",
+                phone_number="1234567891",
+                major="Computer Science",
+                graduation_year=2024,
+            ),
+            Student(
+                student_id="S003",
+                first_name="Charlie",
+                last_name="Brown",
+                email="charlie.brown@example.com",
+                phone_number="1234567892",
+                major="Robotics",
+                graduation_year=2026,
+            ),
+            Student(
+                student_id="S004",
+                first_name="Diana",
+                last_name="Prince",
+                email="diana.prince@example.com",
+                phone_number="1234567893",
+                major="Literature",
+                graduation_year=2023,
+            ),
+            Student(
+                student_id="S005",
+                first_name="Edward",
+                last_name="Norton",
+                email="edward.norton@example.com",
+                phone_number="1234567894",
+                major="Art History",
+                graduation_year=2024,
+            ),
+        ]
+        db.session.add_all(members)
+        db.session.commit()
 
-    # Insert data into Roles
-    roles = [
-        ("President", "Leader of the club"),
-        ("Vice President", "Assists the president"),
-        ("Treasurer", "Handles club finances"),
-        ("Secretary", "Maintains records and schedules"),
-        ("Member", "A general participant of the club who actively engages in events, meetings, and activities, supporting the club's mission and objectives")
-    ]
-    cursor.executemany("""
-    INSERT INTO Roles (role_name, role_description)
-    VALUES (?, ?)""", roles)
+        # Memberships
+        memberships = [
+            Membership(club_id=1, student_id="S001", active_status="Active"),
+            Membership(club_id=1, student_id="S002", active_status="Active"),
+            Membership(club_id=1, student_id="S003", active_status="Inactive"),
+            Membership(club_id=1, student_id="S004", active_status="Active"),
+            Membership(club_id=1, student_id="S005", active_status="Active"),
+            Membership(club_id=2, student_id="S001", active_status="Active"),
+            Membership(club_id=2, student_id="S002", active_status="Active"),
+            Membership(club_id=2, student_id="S003", active_status="Active"),
+            Membership(club_id=2, student_id="S004", active_status="Inactive"),
+            Membership(club_id=2, student_id="S005", active_status="Active"),
+            Membership(club_id=3, student_id="S001", active_status="Inactive"),
+            Membership(club_id=3, student_id="S002", active_status="Active"),
+            Membership(club_id=3, student_id="S003", active_status="Active"),
+            Membership(club_id=3, student_id="S004", active_status="Active"),
+            Membership(club_id=3, student_id="S005", active_status="Active"),
+        ]
+        db.session.add_all(memberships)
+        db.session.commit()
 
-    # Insert data into ClubRoles
-    club_roles = [
-        (1, 1, 1),  # Alice is President of Coding Club
-        (1, 2, 2),  # Bob is Vice President of Coding Club
-        (2, 3, 3),  # Charlie is Treasurer of Art Club
-    ]
-    cursor.executemany("""
-    INSERT INTO ClubRoles (club_id, member_id, role_id)
-    VALUES (?, ?, ?)""", club_roles)
+        # Roles
+        roles = [
+            Role(role_name="President", role_description="Club leader"),
+            Role(role_name="Treasurer", role_description="Manages finances"),
+            Role(role_name="Secretary", role_description="Maintains records"),
+            Role(role_name="Member", role_description="General member"),
+        ]
+        db.session.add_all(roles)
+        db.session.commit()
 
-    # Insert data into Events
-    events = [
-        ("Hackathon 2024", "A 24-hour coding event.", "2024-03-15", "09:00:00", "Computer Lab", "Coding Club event.", 1),
-        ("Art Exhibit", "Showcase of student artwork.", "2024-05-10", "16:00:00", "Art Gallery", "Art Club event.", 2),
-        ("Robotics Workshop", "Learn to build robots.", "2024-06-20", "13:00:00", "Engineering Building", "Robotics Club event.", 3)
-    ]
-    cursor.executemany("""
-    INSERT INTO Events (event_name, event_description, event_date, event_time, location, description, club_id)
-    VALUES (?, ?, ?, ?, ?, ?, ?)""", events)
+        # Club Roles
+        club_roles = [
+            ClubRole(club_id=1, student_id="S001", role_id=1),
+            ClubRole(club_id=1, student_id="S002", role_id=2),
+            ClubRole(club_id=1, student_id="S003", role_id=3),
+            ClubRole(club_id=1, student_id="S004", role_id=4),
+            ClubRole(club_id=1, student_id="S005", role_id=4),
+            ClubRole(club_id=2, student_id="S001", role_id=2),
+            ClubRole(club_id=2, student_id="S002", role_id=1),
+            ClubRole(club_id=2, student_id="S003", role_id=4),
+            ClubRole(club_id=2, student_id="S004", role_id=3),
+            ClubRole(club_id=2, student_id="S005", role_id=4),
+            ClubRole(club_id=3, student_id="S001", role_id=3),
+            ClubRole(club_id=3, student_id="S002", role_id=4),
+            ClubRole(club_id=3, student_id="S003", role_id=2),
+            ClubRole(club_id=3, student_id="S004", role_id=1),
+            ClubRole(club_id=3, student_id="S005", role_id=4),
+        ]
+        db.session.add_all(club_roles)
+        db.session.commit()
 
-    # Insert data into EventAttendance
-    event_attendance = [
-        (1, 1, "Present", "09:10:00"),  # Alice attended Hackathon
-        (1, 2, "Present", "09:20:00"),  # Bob attended Hackathon
-        (2, 3, "Absent", None)         # Charlie missed the Art Exhibit
-    ]
-    cursor.executemany("""
-    INSERT INTO EventAttendance (event_id, member_id, attendance_status, check_in_time)
-    VALUES (?, ?, ?, ?)""", event_attendance)
+        # Events
+        events = [
+            Event(
+                event_name="Art Exhibition",
+                event_description="Annual art showcase",
+                event_date=datetime(2024, 4, 15),
+                event_time=datetime.strptime("14:00", "%H:%M").time(),
+                location="Art Hall",
+                club_id=1,
+            ),
+            Event(
+                event_name="Robotics Competition",
+                event_description="National robotics event",
+                event_date=datetime(2024, 3, 20),
+                event_time=datetime.strptime("10:00", "%H:%M").time(),
+                location="Tech Arena",
+                club_id=2,
+            ),
+            Event(
+                event_name="Poetry Reading",
+                event_description="Celebration of poetry",
+                event_date=datetime(2024, 5, 12),
+                event_time=datetime.strptime("17:30", "%H:%M").time(),
+                location="Library Hall",
+                club_id=3,
+            ),
+        ]
+        db.session.add_all(events)
+        db.session.commit()
 
-    # Insert data into Membership
-    memberships = [
-        (1, 1, "Active"),  # Alice in Coding Club
-        (1, 2, "Active"),  # Bob in Coding Club
-        (2, 3, "Active")   # Charlie in Art Club
-    ]
-    cursor.executemany("""
-    INSERT INTO Membership (club_id, member_id, active_status)
-    VALUES (?, ?, ?)""", memberships)
+        # Attendance
+        attendances = [
+            EventAttendance(
+                event_id=1,
+                student_id="S001",
+                attendance_status="Present",
+                check_in_time=datetime.strptime("14:05", "%H:%M").time(),
+            ),
+            EventAttendance(
+                event_id=1,
+                student_id="S002",
+                attendance_status="Present",
+                check_in_time=datetime.strptime("14:10", "%H:%M").time(),
+            ),
+            EventAttendance(
+                event_id=2,
+                student_id="S003",
+                attendance_status="Present",
+                check_in_time=datetime.strptime("10:15", "%H:%M").time(),
+            ),
+            EventAttendance(
+                event_id=3,
+                student_id="S004",
+                attendance_status="Absent",
+                check_in_time=None,
+            ),
+        ]
+        db.session.add_all(attendances)
+        db.session.commit()
 
-    # Insert data into Budget
-    budgets = [
-        (1, 2024, 10000, 2000, 8000),  # Coding Club budget
-        (2, 2024, 5000, 1500, 3500),   # Art Club budget
-        (3, 2024, 8000, 3000, 5000)    # Robotics Club budget
-    ]
-    cursor.executemany("""
-    INSERT INTO Budget (club_id, fiscal_year, total_budget, spent_amount, remaining_amount)
-    VALUES (?, ?, ?, ?, ?)""", budgets)
+        # Budgets
+        budgets = [
+            Budget(club_id=1, fiscal_year=2023, total_budget=5000.0),
+            Budget(club_id=1, fiscal_year=2024, total_budget=5500.0),
+            Budget(club_id=2, fiscal_year=2023, total_budget=6000.0),
+            Budget(club_id=2, fiscal_year=2024, total_budget=6500.0),
+            Budget(club_id=3, fiscal_year=2023, total_budget=4000.0),
+            Budget(club_id=3, fiscal_year=2024, total_budget=4500.0),
+        ]
+        db.session.add_all(budgets)
+        db.session.commit()
 
-    # Insert data into Sponsors
-    sponsors = [
-        ("TechCorp", "Jane Doe", "jane.doe@techcorp.com", "1112223333", "123 Tech Street"),
-        ("Art Supplies Inc.", "John Artist", "john.artist@artsupplies.com", "4445556666", "456 Art Lane")
-    ]
-    cursor.executemany("""
-    INSERT INTO Sponsors (sponsor_name, contact_person, contact_email, phone_number, address)
-    VALUES (?, ?, ?, ?, ?)""", sponsors)
+        # Sponsors
+        sponsors = [
+            Sponsor(
+                sponsor_name="Art Supplies Co.",
+                contact_person="John Doe",
+                contact_email="john.doe@example.com",
+                phone_number="123-456-7890",
+                address="123 Art St.",
+            ),
+            Sponsor(
+                sponsor_name="Tech Innovators",
+                contact_person="Jane Smith",
+                contact_email="jane.smith@example.com",
+                phone_number="321-654-0987",
+                address="456 Tech Ave.",
+            ),
+            Sponsor(
+                sponsor_name="Book Lovers Inc.",
+                contact_person="Robert Brown",
+                contact_email="robert.brown@example.com",
+                phone_number="456-789-1230",
+                address="789 Literature Rd.",
+            ),
+        ]
+        db.session.add_all(sponsors)
+        db.session.commit()
 
-    # Insert data into SponsorshipContribution
-    sponsorships = [
-        (1, 1, 5000, "2023-11-01"),  # TechCorp sponsors Coding Club
-        (2, 2, 2000, "2023-11-01")   # Art Supplies sponsors Art Club
-    ]
-    cursor.executemany("""
-    INSERT INTO SponsorshipContribution (sponsor_id, club_id, contribution_amount, contribution_date)
-    VALUES (?, ?, ?, ?)""", sponsorships)
+        # Sponsorship Contributions
+        sponsorships = [
+            SponsorshipContribution(
+                sponsor_id=1,
+                club_id=1,
+                contribution_amount=2000.0,
+                contribution_date=datetime(2024, 1, 15),
+            ),
+            SponsorshipContribution(
+                sponsor_id=2,
+                club_id=2,
+                contribution_amount=2500.0,
+                contribution_date=datetime(2024, 2, 10),
+            ),
+            SponsorshipContribution(
+                sponsor_id=3,
+                club_id=3,
+                contribution_amount=1500.0,
+                contribution_date=datetime(2024, 3, 5),
+            ),
+        ]
+        db.session.add_all(sponsorships)
+        db.session.commit()
 
-    # Insert data into EventHosting
-    event_hosting = [
-        (1, 1, "Confirmed"),  # Coding Club hosts Hackathon
-        (2, 2, "Confirmed"),  # Art Club hosts Art Exhibit
-        (3, 3, "Confirmed")   # Robotics Club hosts Workshop
-    ]
-    cursor.executemany("""
-    INSERT INTO EventHosting (club_id, event_id, hosting_status)
-    VALUES (?, ?, ?)""", event_hosting)
+        # Event Hosting
+        hostings = [
+            EventHosting(club_id=1, event_id=1, hosting_status="Confirmed"),
+            EventHosting(club_id=2, event_id=2, hosting_status="Confirmed"),
+            EventHosting(club_id=3, event_id=3, hosting_status="Pending"),
+        ]
+        db.session.add_all(hostings)
+        db.session.commit()
 
-    # Commit changes
-    connection.commit()
-    print("Test data inserted successfully.")
+        # Expenses
+        expenses = [
+            Expense(
+                club_id=1,
+                budget_id=1,
+                expense_name="Paint Supplies",
+                expense_date=datetime(2024, 1, 10),
+                expense_amount=500.0,
+                description="Supplies for painting",
+                category="Supplies",
+            ),
+            Expense(
+                club_id=1,
+                budget_id=1,
+                expense_name="Gallery Rent",
+                expense_date=datetime(2024, 2, 20),
+                expense_amount=1200.0,
+                description="Rent for gallery",
+                category="Event",
+            ),
+            Expense(
+                club_id=2,
+                budget_id=2,
+                expense_name="Robot Parts",
+                expense_date=datetime(2024, 3, 15),
+                expense_amount=2000.0,
+                description="Parts for competition",
+                category="Supplies",
+            ),
+            Expense(
+                club_id=3,
+                budget_id=3,
+                expense_name="Books Purchase",
+                expense_date=datetime(2024, 4, 5),
+                expense_amount=800.0,
+                description="Books for library",
+                category="Supplies",
+            ),
+        ]
+        db.session.add_all(expenses)
+        db.session.commit()
 
-except Exception as e:
-    print("An error occurred:", e)
-    connection.rollback()
 
-finally:
-    # Close the connection
-    connection.close()
+# Run the script
+if __name__ == "__main__":
+    seed_database()

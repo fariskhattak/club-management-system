@@ -9,9 +9,8 @@ CREATE TABLE Clubs (
 );
 
 -- Members Table
-CREATE TABLE Members (
-    member_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    student_id TEXT NOT NULL UNIQUE,
+CREATE TABLE Students (
+    student_id TEXT PRIMARY KEY,
     first_name TEXT NOT NULL,
     last_name TEXT NOT NULL,
     email TEXT NOT NULL UNIQUE,
@@ -46,7 +45,6 @@ CREATE TABLE Events (
     event_date DATE NOT NULL,
     event_time TIME,
     location TEXT,
-    description TEXT,
     club_id INTEGER NOT NULL,
     FOREIGN KEY (club_id) REFERENCES Clubs (club_id)
 );
@@ -86,6 +84,7 @@ CREATE TABLE Expenses (
     expense_id INTEGER PRIMARY KEY AUTOINCREMENT,
     club_id INTEGER NOT NULL,
     budget_id INTEGER NOT NULL,
+    expense_name TEXT NOT NULL,
     expense_date DATE NOT NULL,
     expense_amount REAL NOT NULL,
     description TEXT NOT NULL,
@@ -113,6 +112,7 @@ CREATE TABLE SponsorshipContribution (
     contribution_date DATE,
     FOREIGN KEY (sponsor_id) REFERENCES Sponsors (sponsor_id),
     FOREIGN KEY (club_id) REFERENCES Clubs (club_id)
+
 );
 
 -- Event Hosting Junction Table

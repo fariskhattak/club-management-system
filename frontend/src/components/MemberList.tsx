@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-interface Member {
+interface Student {
   member_id: number;
   first_name: string;
   last_name: string;
@@ -29,11 +29,11 @@ interface MemberListProps {
 const ITEMS_PER_PAGE = 10; // Number of members per page
 
 const MemberList: React.FC<MemberListProps> = ({ currentClub, onMemberAdded }) => {
-  const [members, setMembers] = useState<Member[]>([]);
+  const [members, setMembers] = useState<Student[]>([]);
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [memberToDelete, setMemberToDelete] = useState<Member | null>(null);
+  const [memberToDelete, setMemberToDelete] = useState<Student | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchParams, setSearchParams] = useState({
     first_name: "",
@@ -102,10 +102,14 @@ const MemberList: React.FC<MemberListProps> = ({ currentClub, onMemberAdded }) =
     }
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleAddMemberInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value })); // Update for Add Member form
+  };
+
+  const handleSearchMemberInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setSearchParams((prev) => ({ ...prev, [name]: value }));
-    setFormData((prev) => ({ ...prev, [name]: value })); // Update for Add Member form
   };
 
   const handleAddMember = async () => {
@@ -151,7 +155,7 @@ const MemberList: React.FC<MemberListProps> = ({ currentClub, onMemberAdded }) =
     }
   };
 
-  const handleRemoveMember = (member: Member) => {
+  const handleRemoveMember = (member: Student) => {
     setMemberToDelete(member);
     setIsDeleteModalOpen(true);
   };
@@ -161,7 +165,7 @@ const MemberList: React.FC<MemberListProps> = ({ currentClub, onMemberAdded }) =
 
     try {
       const response = await fetch(
-        `http://localhost:5001/api/clubs/${currentClub.club_id}/members/${memberToDelete.member_id}`,
+        `http://localhost:5001/api/clubs/${currentClub.club_id}/members/${memberToDelete.student_id}`,
         {
           method: "DELETE",
         }
@@ -233,7 +237,7 @@ const MemberList: React.FC<MemberListProps> = ({ currentClub, onMemberAdded }) =
             type="text"
             name="first_name"
             value={searchParams.first_name}
-            onChange={handleInputChange}
+            onChange={handleSearchMemberInputChange}
             placeholder="First Name"
             className="px-4 py-2 border rounded"
           />
@@ -241,7 +245,7 @@ const MemberList: React.FC<MemberListProps> = ({ currentClub, onMemberAdded }) =
             type="text"
             name="last_name"
             value={searchParams.last_name}
-            onChange={handleInputChange}
+            onChange={handleSearchMemberInputChange}
             placeholder="Last Name"
             className="px-4 py-2 border rounded"
           />
@@ -249,7 +253,7 @@ const MemberList: React.FC<MemberListProps> = ({ currentClub, onMemberAdded }) =
             type="text"
             name="student_id"
             value={searchParams.student_id}
-            onChange={handleInputChange}
+            onChange={handleSearchMemberInputChange}
             placeholder="Student ID"
             className="px-4 py-2 border rounded"
           />
@@ -257,7 +261,7 @@ const MemberList: React.FC<MemberListProps> = ({ currentClub, onMemberAdded }) =
             type="email"
             name="email"
             value={searchParams.email}
-            onChange={handleInputChange}
+            onChange={handleSearchMemberInputChange}
             placeholder="Email"
             className="px-4 py-2 border rounded"
           />
@@ -265,7 +269,7 @@ const MemberList: React.FC<MemberListProps> = ({ currentClub, onMemberAdded }) =
             type="text"
             name="major"
             value={searchParams.major}
-            onChange={handleInputChange}
+            onChange={handleSearchMemberInputChange}
             placeholder="Major"
             className="px-4 py-2 border rounded"
           />
@@ -273,7 +277,7 @@ const MemberList: React.FC<MemberListProps> = ({ currentClub, onMemberAdded }) =
             type="number"
             name="graduation_year"
             value={searchParams.graduation_year}
-            onChange={handleInputChange}
+            onChange={handleSearchMemberInputChange}
             placeholder="Graduation Year"
             className="px-4 py-2 border rounded"
           />
@@ -395,7 +399,7 @@ const MemberList: React.FC<MemberListProps> = ({ currentClub, onMemberAdded }) =
                 type="text"
                 name="first_name"
                 value={formData.first_name}
-                onChange={handleInputChange}
+                onChange={handleAddMemberInputChange}
                 placeholder="First Name"
                 className="w-full px-3 py-2 border rounded"
                 required
@@ -404,7 +408,7 @@ const MemberList: React.FC<MemberListProps> = ({ currentClub, onMemberAdded }) =
                 type="text"
                 name="last_name"
                 value={formData.last_name}
-                onChange={handleInputChange}
+                onChange={handleAddMemberInputChange}
                 placeholder="Last Name"
                 className="w-full px-3 py-2 border rounded"
                 required
@@ -413,7 +417,7 @@ const MemberList: React.FC<MemberListProps> = ({ currentClub, onMemberAdded }) =
                 type="text"
                 name="student_id"
                 value={formData.student_id}
-                onChange={handleInputChange}
+                onChange={handleAddMemberInputChange}
                 placeholder="Student ID"
                 className="w-full px-3 py-2 border rounded"
                 required
@@ -422,7 +426,7 @@ const MemberList: React.FC<MemberListProps> = ({ currentClub, onMemberAdded }) =
                 type="email"
                 name="email"
                 value={formData.email}
-                onChange={handleInputChange}
+                onChange={handleAddMemberInputChange}
                 placeholder="Email"
                 className="w-full px-3 py-2 border rounded"
                 required
@@ -431,7 +435,7 @@ const MemberList: React.FC<MemberListProps> = ({ currentClub, onMemberAdded }) =
                 type="text"
                 name="phone_number"
                 value={formData.phone_number}
-                onChange={handleInputChange}
+                onChange={handleAddMemberInputChange}
                 placeholder="Phone Number"
                 className="w-full px-3 py-2 border rounded"
               />
@@ -439,7 +443,7 @@ const MemberList: React.FC<MemberListProps> = ({ currentClub, onMemberAdded }) =
                 type="text"
                 name="major"
                 value={formData.major}
-                onChange={handleInputChange}
+                onChange={handleAddMemberInputChange}
                 placeholder="Major"
                 className="w-full px-3 py-2 border rounded"
               />
@@ -447,7 +451,7 @@ const MemberList: React.FC<MemberListProps> = ({ currentClub, onMemberAdded }) =
                 type="number"
                 name="graduation_year"
                 value={formData.graduation_year}
-                onChange={handleInputChange}
+                onChange={handleAddMemberInputChange}
                 placeholder="Graduation Year"
                 className="w-full px-3 py-2 border rounded"
               />

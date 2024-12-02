@@ -5,6 +5,7 @@ import "react-toastify/dist/ReactToastify.css"; // Import toast styles
 
 import Header from "../components/Header";
 import MemberList from "../components/MemberList";
+import StudentList from "@/components/StudentsList";
 import MajorGraph from "../components/MajorGraph";
 import GraduationGraph from "../components/GraduationGraph";
 import SideNavbar from "../components/SideNavbar";
@@ -149,17 +150,21 @@ export default function Home() {
       />
       {/* Main Content */}
       <div className="flex-1">
-        <Header currentClub={currentClub?.club_name || undefined} />
+        <Header currentClub={currentClub?.club_name || undefined} setCurrentClub={setCurrentClub} />
         <main className="p-4 relative">
           {currentClub === null ? (
-            <div className="flex flex-col items-center justify-center h-[calc(100vh-4rem)] bg-gray-50 rounded shadow">
-              <h2 className="text-2xl font-semibold text-gray-700">
-                No Club Selected
-              </h2>
-              <p className="text-gray-500 mt-2">
-                Please select a club from the side navbar to view its details.
-              </p>
-            </div>
+              <div className="flex flex-col items-center justify-center h-[calc(100vh-4rem)] bg-gray-50 rounded shadow">
+                <h2 className="text-2xl font-semibold text-gray-700">
+                  No Club Selected
+                </h2>
+                <p className="text-gray-500 my-2">
+                  Please select a club from the side navbar to view its details.
+                </p>
+                <div className="mt-10 bg-gray-50 rounded shadow">
+                  <StudentList />
+                </div>
+              </div>
+
           ) : (
             <>
               {/* Tab Navigation */}
@@ -234,7 +239,7 @@ export default function Home() {
           )}
 
           {/* Toast Notifications */}
-          <ToastContainer position="bottom-right" autoClose={3000} />
+          <ToastContainer position="top-right" autoClose={3000} />
         </main>
       </div>
     </div>

@@ -12,11 +12,10 @@ class Club(db.Model):
     contact_email = db.Column(db.String(255), nullable=False)
     faculty_advisor = db.Column(db.String(255))
 
-# Members Table
-class Member(db.Model):
-    __tablename__ = 'Members'
-    member_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    student_id = db.Column(db.String(50), unique=True, nullable=False)
+# Students Table
+class Student(db.Model):
+    __tablename__ = 'Students'
+    student_id = db.Column(db.String(50), primary_key=True)
     first_name = db.Column(db.String(255), nullable=False)
     last_name = db.Column(db.String(255), nullable=False)
     email = db.Column(db.String(255), unique=True, nullable=False)
@@ -31,13 +30,15 @@ class Role(db.Model):
     role_name = db.Column(db.String(255), nullable=False)
     role_description = db.Column(db.Text)
 
+
 # Club Roles Junction Table
 class ClubRole(db.Model):
     __tablename__ = 'ClubRoles'
     club_role_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     club_id = db.Column(db.Integer, db.ForeignKey('Clubs.club_id'), nullable=False)
-    member_id = db.Column(db.Integer, db.ForeignKey('Members.member_id'), nullable=False)
+    student_id = db.Column(db.Integer, db.ForeignKey('Students.student_id'), nullable=False)
     role_id = db.Column(db.Integer, db.ForeignKey('Roles.role_id'), nullable=False)
+
 
 # Events Table
 class Event(db.Model):
@@ -48,15 +49,15 @@ class Event(db.Model):
     event_date = db.Column(db.Date, nullable=False)
     event_time = db.Column(db.Time)
     location = db.Column(db.String(255))
-    description = db.Column(db.Text)
     club_id = db.Column(db.Integer, db.ForeignKey('Clubs.club_id'), nullable=False)
+
 
 # Event Attendance Table
 class EventAttendance(db.Model):
     __tablename__ = 'EventAttendance'
     attendance_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     event_id = db.Column(db.Integer, db.ForeignKey('Events.event_id'), nullable=False)
-    member_id = db.Column(db.Integer, db.ForeignKey('Members.member_id'), nullable=False)
+    student_id = db.Column(db.Integer, db.ForeignKey('Students.student_id'), nullable=False)
     attendance_status = db.Column(db.String(50))
     check_in_time = db.Column(db.Time)
 
@@ -65,7 +66,7 @@ class Membership(db.Model):
     __tablename__ = 'Membership'
     membership_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     club_id = db.Column(db.Integer, db.ForeignKey('Clubs.club_id'), nullable=False)
-    member_id = db.Column(db.Integer, db.ForeignKey('Members.member_id'), nullable=False)
+    student_id = db.Column(db.Integer, db.ForeignKey('Students.student_id'), nullable=False)
     active_status = db.Column(db.String(50))
 
 # Budget Table
@@ -75,8 +76,7 @@ class Budget(db.Model):
     club_id = db.Column(db.Integer, db.ForeignKey('Clubs.club_id'), nullable=False)
     fiscal_year = db.Column(db.Integer, nullable=False)
     total_budget = db.Column(db.Float, nullable=False)
-    spent_amount = db.Column(db.Float, default=0)
-    remaining_amount = db.Column(db.Float, default=0)
+
 
 # Sponsors Table
 class Sponsor(db.Model):
@@ -97,6 +97,7 @@ class SponsorshipContribution(db.Model):
     contribution_amount = db.Column(db.Float, nullable=False)
     contribution_date = db.Column(db.Date)
 
+
 # Event Hosting Junction Table
 class EventHosting(db.Model):
     __tablename__ = 'EventHosting'
@@ -110,12 +111,10 @@ class Expense(db.Model):
     __tablename__ = 'Expenses'
     expense_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     club_id = db.Column(db.Integer, db.ForeignKey('Clubs.club_id'), nullable=False)
-    budget_id = db.Column(db.Integer, db.ForeignKey('Budget.budget_id'), nullable=True)
+    budget_id = db.Column(db.Integer, db.ForeignKey('Budget.budget_id'), nullable=False)
     expense_name = db.Column(db.String(255), nullable=False)  # Name of the expense
-    amount = db.Column(db.Float, nullable=False)  # Expense amount
+    expense_amount = db.Column(db.Float, nullable=False)  # Expense amount
     expense_date = db.Column(db.Date, nullable=False)  # Date the expense occurred
     description = db.Column(db.Text)  # Additional details about the expense
+    category = db.Column(db.Text)  # Category of the expense
 
-    # Relationships
-    club = db.relationship("Club", backref="expenses")
-    budget = db.relationship("Budget", backref="expenses")

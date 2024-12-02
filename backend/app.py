@@ -6,7 +6,7 @@ from sqlalchemy import or_, and_
 from models import (
     db,
     Club,
-    Member,
+    Student,
     Role,
     ClubRole,
     Event,
@@ -123,13 +123,38 @@ def delete_club(club_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": str(e)}), 400
+    
+# Route to fetch all students
+@app.route('/api/students', methods=['GET'])
+def get_all_students():
+    try:
+        # Fetch all students from the database
+        students = Student.query.all()
+
+        # Format the students into a list of dictionaries
+        student_list = [
+            {
+                "student_id": student.student_id,
+                "first_name": student.first_name,
+                "last_name": student.last_name,
+                "email": student.email,
+                "phone_number": student.phone_number,
+                "major": student.major,
+                "graduation_year": student.graduation_year,
+            }
+            for student in students
+        ]
+
+        return jsonify({"students": student_list}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 @app.route("/api/clubs/<int:club_id>/members", methods=["GET"])
 def get_club_members(club_id):
     # Query to find members associated with the club_id
     members = (
-        db.session.query(Member)
+        db.session.query(Student)
         .join(Membership)
         .filter(Membership.club_id == club_id)
         .all()
@@ -147,7 +172,6 @@ def get_club_members(club_id):
     # Format the response
     member_list = [
         {
-            "member_id": member.member_id,
             "student_id": member.student_id,
             "first_name": member.first_name,
             "last_name": member.last_name,
@@ -176,10 +200,10 @@ def add_member_to_club(club_id):
 
     try:
         # Check if the member already exists
-        member = Member.query.filter_by(student_id=data["student_id"]).first()
+        member = Student.query.filter_by(student_id=data["student_id"]).first()
         if not member:
             # Create a new member if they don't exist
-            member = Member(
+            member = Student(
                 student_id=data["student_id"],
                 first_name=data["first_name"],
                 last_name=data["last_name"],
@@ -193,7 +217,7 @@ def add_member_to_club(club_id):
 
         # Check if the membership already exists
         membership = Membership.query.filter_by(
-            club_id=club_id, member_id=member.member_id
+            club_id=club_id, student_id=member.student_id
         ).first()
         if membership:
             return jsonify({"message": "Member already exists in this club"}), 200
@@ -201,7 +225,7 @@ def add_member_to_club(club_id):
             # Link the member to the club if not already linked
             new_membership = Membership(
                 club_id=club_id,
-                member_id=member.member_id,
+                student_id=member.student_id,
                 active_status=data.get("active_status", "Active"),
             )
             db.session.add(new_membership)
@@ -211,7 +235,6 @@ def add_member_to_club(club_id):
         return (
             jsonify(
                 {
-                    "member_id": member.member_id,
                     "student_id": member.student_id,
                     "first_name": member.first_name,
                     "last_name": member.last_name,
@@ -229,8 +252,8 @@ def add_member_to_club(club_id):
         return jsonify({"error": str(e)}), 400
 
 
-@app.route("/api/clubs/<int:club_id>/members/<int:member_id>", methods=["DELETE"])
-def remove_member_from_club(club_id, member_id):
+@app.route("/api/clubs/<int:club_id>/members/<string:student_id>", methods=["DELETE"])
+def remove_member_from_club(club_id, student_id):
     try:
         # Check if the club exists
         club = db.session.get(Club, club_id)
@@ -239,7 +262,7 @@ def remove_member_from_club(club_id, member_id):
 
         # Check if the membership exists
         membership = Membership.query.filter_by(
-            club_id=club_id, member_id=member_id
+            club_id=club_id, student_id=student_id
         ).first()
         if not membership:
             return jsonify({"error": "Member not found in this club"}), 404
@@ -280,8 +303,8 @@ def get_events_for_club(club_id):
 @app.route("/api/events/<int:event_id>/attendance", methods=["GET"])
 def get_attendance_for_event(event_id):
     attendance = (
-        db.session.query(EventAttendance, Member)
-        .join(Member)
+        db.session.query(EventAttendance, Student)
+        .join(Student)
         .filter(EventAttendance.event_id == event_id)
         .all()
     )
@@ -291,14 +314,14 @@ def get_attendance_for_event(event_id):
             "attendance": [
                 {
                     "attendance_id": att.EventAttendance.attendance_id,
-                    "member_id": att.EventAttendance.member_id,
+                    "student_id": att.EventAttendance.student_id,
                     "attendance_status": att.EventAttendance.attendance_status,
                     "check_in_time": (
                         att.EventAttendance.check_in_time.strftime("%H:%M:%S")
                         if att.EventAttendance.check_in_time
                         else None
                     ),  # Format time
-                    "member_name": f"{att.Member.first_name} {att.Member.last_name}",
+                    "member_name": f"{att.Student.first_name} {att.Student.last_name}",
                 }
                 for att in attendance
             ]
@@ -321,20 +344,20 @@ def search_members(club_id):
         filters = [Membership.club_id == club_id]
 
         if first_name:
-            filters.append(Member.first_name.ilike(f"%{first_name}%"))
+            filters.append(Student.first_name.ilike(f"%{first_name}%"))
         if last_name:
-            filters.append(Member.last_name.ilike(f"%{last_name}%"))
+            filters.append(Student.last_name.ilike(f"%{last_name}%"))
         if student_id:
-            filters.append(Member.student_id.ilike(f"%{student_id}%"))
+            filters.append(Student.student_id.ilike(f"%{student_id}%"))
         if email:
-            filters.append(Member.email.ilike(f"%{email}%"))
+            filters.append(Student.email.ilike(f"%{email}%"))
         if major:
-            filters.append(Member.major.ilike(f"%{major}%"))
+            filters.append(Student.major.ilike(f"%{major}%"))
         if graduation_year:
-            filters.append(Member.graduation_year == graduation_year)
+            filters.append(Student.graduation_year == graduation_year)
 
         # Query members
-        members = db.session.query(Member).join(Membership).filter(and_(*filters)).all()
+        members = db.session.query(Student).join(Membership).filter(and_(*filters)).all()
 
         if not members:
             return jsonify({"members": []}), 200
@@ -342,7 +365,7 @@ def search_members(club_id):
         # Format members for JSON response
         member_list = [
             {
-                "member_id": member.member_id,
+                "student_id": member.student_id,
                 "first_name": member.first_name,
                 "last_name": member.last_name,
                 "student_id": member.student_id,
@@ -494,7 +517,7 @@ def get_club_budget(club_id):
 
     # Calculate spent amount from Expenses table
     spent = (
-        db.session.query(db.func.sum(Expense.amount))
+        db.session.query(db.func.sum(Expense.expense_amount))
         .filter(
             Expense.club_id == club_id,
             Expense.expense_date.between(
@@ -551,9 +574,17 @@ def update_budget(club_id):
         if not budget:
             return jsonify({"error": "Budget record not found for the given fiscal year"}), 404
 
-        # Update the total_budget and recalculate remaining_amount
+        # Calculate the spent amount dynamically from the Expenses table
+        spent_amount = db.session.query(
+            db.func.sum(Expense.expense_amount)
+        ).filter(
+            Expense.club_id == club_id,
+            Expense.budget_id == budget.budget_id
+        ).scalar() or 0
+
+        # Update the total_budget and remaining_amount
         budget.total_budget = total_budget
-        budget.remaining_amount = total_budget - budget.spent_amount
+        remaining_amount = total_budget - spent_amount
 
         # Commit changes to the database
         db.session.commit()
@@ -561,14 +592,13 @@ def update_budget(club_id):
         return jsonify({
             "fiscal_year": budget.fiscal_year,
             "total_budget": budget.total_budget,
-            "spent_amount": budget.spent_amount,
-            "remaining_amount": budget.remaining_amount,
+            "spent_amount": spent_amount,
+            "remaining_amount": remaining_amount,
         }), 200
 
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": str(e)}), 500
-
 
 
 # Main entry point
