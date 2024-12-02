@@ -164,27 +164,27 @@ export default function Home() {
             <>
               {/* Tab Navigation */}
               <div className="bg-white shadow-md mb-4">
-                <div className="flex justify-center space-x-4 border-b">
+                <div className="flex text-center justify-center space-x-4 border-b">
                   <button
                     className={`px-6 py-3 font-medium ${activeTab === "membership" ? "text-blue-600 border-b-2 border-blue-600" : "text-gray-600"
                       }`}
                     onClick={() => setActiveTab("membership")}
                   >
-                    Memberships View
+                    Memberships
                   </button>
                   <button
                     className={`px-6 py-3 font-medium ${activeTab === "events" ? "text-blue-600 border-b-2 border-blue-600" : "text-gray-600"
                       }`}
                     onClick={() => setActiveTab("events")}
                   >
-                    Events View
+                    Events
                   </button>
                   <button
                     className={`px-6 py-3 font-medium ${activeTab === "finances" ? "text-blue-600 border-b-2 border-blue-600" : "text-gray-600"
                       }`}
                     onClick={() => setActiveTab("finances")}
                   >
-                    Finances View
+                    Finances
                   </button>
                 </div>
               </div>

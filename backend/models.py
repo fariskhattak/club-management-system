@@ -104,3 +104,18 @@ class EventHosting(db.Model):
     club_id = db.Column(db.Integer, db.ForeignKey('Clubs.club_id'), nullable=False)
     event_id = db.Column(db.Integer, db.ForeignKey('Events.event_id'), nullable=False)
     hosting_status = db.Column(db.String(50))
+
+# Expense Table
+class Expense(db.Model):
+    __tablename__ = 'Expenses'
+    expense_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    club_id = db.Column(db.Integer, db.ForeignKey('Clubs.club_id'), nullable=False)
+    budget_id = db.Column(db.Integer, db.ForeignKey('Budget.budget_id'), nullable=True)
+    expense_name = db.Column(db.String(255), nullable=False)  # Name of the expense
+    amount = db.Column(db.Float, nullable=False)  # Expense amount
+    expense_date = db.Column(db.Date, nullable=False)  # Date the expense occurred
+    description = db.Column(db.Text)  # Additional details about the expense
+
+    # Relationships
+    club = db.relationship("Club", backref="expenses")
+    budget = db.relationship("Budget", backref="expenses")

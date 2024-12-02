@@ -78,9 +78,20 @@ CREATE TABLE Budget (
     club_id INTEGER NOT NULL,
     fiscal_year INTEGER NOT NULL,
     total_budget REAL NOT NULL,
-    spent_amount REAL DEFAULT 0,
-    remaining_amount REAL DEFAULT 0,
     FOREIGN KEY (club_id) REFERENCES Clubs (club_id)
+);
+
+-- Expenses Table
+CREATE TABLE Expenses (
+    expense_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    club_id INTEGER NOT NULL,
+    budget_id INTEGER NOT NULL,
+    expense_date DATE NOT NULL,
+    expense_amount REAL NOT NULL,
+    description TEXT NOT NULL,
+    category TEXT, -- Optional: To categorize expenses (e.g., "Event", "Supplies", "Travel")
+    FOREIGN KEY (club_id) REFERENCES Clubs (club_id),
+    FOREIGN KEY (budget_id) REFERENCES Budget (budget_id)
 );
 
 -- Sponsors Table
