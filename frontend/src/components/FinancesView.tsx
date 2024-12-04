@@ -27,9 +27,10 @@ const FinancesView: React.FC<FinancesViewProps> = ({ currentClub }) => {
             const response = await fetch(`http://localhost:5001/api/clubs/${currentClub?.club_id}/budget/years`);
             if (response.ok) {
                 const data = await response.json();
-                setFiscalYears(data.fiscal_years);
+                setFiscalYears(data.fiscal_years)
                 if (data.fiscal_years.length > 0) {
-                    setSelectedYear(data.fiscal_years[0]);
+                    if (selectedYear === null)
+                        setSelectedYear(data.fiscal_years[0]);
                 }
             } else {
                 console.error("Failed to fetch fiscal years");
@@ -65,7 +66,7 @@ const FinancesView: React.FC<FinancesViewProps> = ({ currentClub }) => {
         if (currentClub) {
             fetchFiscalYears();
         }
-    }, [currentClub]);
+    }, [currentClub, budget]);
 
     useEffect(() => {
         if (selectedYear) {
@@ -97,7 +98,7 @@ const FinancesView: React.FC<FinancesViewProps> = ({ currentClub }) => {
             {/* Expenses List Section */}
             <div className="mb-2">
                 {currentClub ? (
-                    <ExpensesList currentClub={currentClub} fiscal_year={selectedYear} />
+                    <ExpensesList currentClub={currentClub} fiscal_year={selectedYear} budget={budget} setBudget={setBudget} />
                 ) : (
                     <p className="text-gray-600 italic">Select a club to view its sponsors.</p>
                 )}

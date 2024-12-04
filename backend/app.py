@@ -732,6 +732,47 @@ def delete_expense(club_id, expense_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": str(e)}), 500
+    
+@app.route("/api/expenses/categories", methods=["GET"])
+def get_expense_categories():
+    try:
+        # Hardcoded list based on the database schema
+        categories = ['Event', 'Supplies', 'Travel', 'Food', 'Other']
+        return jsonify({"categories": categories}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+@app.route("/api/clubs/<int:club_id>/budget", methods=["POST"])
+def add_budget(club_id):
+    data = request.json
+    try:
+        # Validate input
+        fiscal_year = data.get("fiscal_year")
+        total_budget = data.get("total_budget")
+
+        if not fiscal_year or not total_budget:
+            return jsonify({"error": "Fiscal year and total budget are required"}), 400
+
+        # Check if a budget already exists for the same fiscal year
+        existing_budget = Budget.query.filter_by(club_id=club_id, fiscal_year=fiscal_year).first()
+        if existing_budget:
+            return jsonify({"error": "Budget for this fiscal year already exists"}), 400
+
+        # Create the new budget
+        new_budget = Budget(
+            club_id=club_id,
+            fiscal_year=fiscal_year,
+            total_budget=total_budget,
+        )
+        db.session.add(new_budget)
+        db.session.commit()
+
+        return jsonify({"message": "Budget added successfully"}), 201
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+
 
 
 # Main entry point

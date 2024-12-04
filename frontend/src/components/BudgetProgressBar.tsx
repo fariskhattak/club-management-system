@@ -1,4 +1,7 @@
+import { error } from "console";
 import React, { useEffect, useState } from "react";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 interface Budget {
   budget_id: number;
@@ -18,9 +21,22 @@ interface BudgetProgressBarProps {
   setBudget: (budget: Budget | null) => void;
 }
 
-const BudgetProgressBar: React.FC<BudgetProgressBarProps> = ({ clubId, budget, fiscalYears, selectedYear, loading, setSelectedYear, setBudget }) => {
+const BudgetProgressBar: React.FC<BudgetProgressBarProps> = ({
+  clubId,
+  budget,
+  fiscalYears,
+  selectedYear,
+  loading,
+  setSelectedYear,
+  setBudget,
+}) => {
   const [isEditing, setIsEditing] = useState(false);
   const [newTotalBudget, setNewTotalBudget] = useState<string>("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [newBudget, setNewBudget] = useState({
+    fiscal_year: "",
+    total_budget: "",
+  });
 
   const saveBudget = async () => {
     if (!selectedYear || !budget) return;
@@ -49,17 +65,73 @@ const BudgetProgressBar: React.FC<BudgetProgressBarProps> = ({ clubId, budget, f
         });
 
         setIsEditing(false);
+        toast.success("Budget updated successfully!");
       } else {
         console.error("Failed to update budget");
+        toast.error("Failed to update budget.");
       }
     } catch (error) {
       console.error("Error updating budget:", error);
+      toast.error("An error occurred while updating the budget.");
+    }
+  };
+
+  const handleAddNewBudget = async () => {
+    if (!clubId || !newBudget.fiscal_year || !newBudget.total_budget) {
+      toast.error("All fields are required to add a budget.");
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `http://localhost:5001/api/clubs/${clubId}/budget`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            fiscal_year: parseInt(newBudget.fiscal_year),
+            total_budget: parseFloat(newBudget.total_budget),
+          }),
+        }
+      );
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log("Budget added successfully:", result);
+
+        // Refresh budget list
+        setSelectedYear(parseInt(newBudget.fiscal_year));
+        setBudget({
+          budget_id: 0, // Temporary placeholder until the budget list refreshes
+          fiscal_year: parseInt(newBudget.fiscal_year),
+          total_budget: parseFloat(newBudget.total_budget),
+          spent_amount: 0,
+          remaining_amount: parseFloat(newBudget.total_budget),
+        });
+
+        setIsModalOpen(false);
+        setNewBudget({ fiscal_year: "", total_budget: "" });
+        toast.success("Budget added successfully!");
+      } else {
+        const errorData = await response.json();
+        // console.error("Failed to add budget:", errorData);
+        toast.error(errorData.error || "Failed to add budget.");
+      }
+    } catch (error) {
+      console.error("Error adding budget:", error);
+      toast.error("An error occurred while adding the budget.");
     }
   };
 
   return (
-    <div className="w-full p-4 bg-white rounded-lg shadow-md text-black">
+    <div className="w-full p-4 bg-white rounded-lg shadow-md text-black relative">
       <h2 className="text-xl font-bold text-gray-800 mb-4">Budget Overview</h2>
+      <button
+        className="absolute top-4 right-4 bg-cms_soft_teal font-bold text-white px-4 py-2 rounded hover:bg-cyan-700"
+        onClick={() => setIsModalOpen(true)}
+      >
+        Add New Budget
+      </button>
       {fiscalYears.length > 0 && (
         <div className="mb-4">
           <label htmlFor="fiscal-year" className="mr-4 text-gray-600 font-medium">
@@ -143,6 +215,57 @@ const BudgetProgressBar: React.FC<BudgetProgressBarProps> = ({ clubId, budget, f
         </div>
       ) : (
         <p>No budget data found for the selected fiscal year.</p>
+      )}
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-cms_purple rounded-lg shadow-lg p-6 w-96">
+            <h2 className="text-lg font-bold mb-4 text-white">Add New Budget</h2>
+            <form className="space-y-4">
+              <input
+                type="number"
+                name="fiscal_year"
+                value={newBudget.fiscal_year}
+                onChange={(e) =>
+                  setNewBudget((prev) => ({ ...prev, fiscal_year: e.target.value }))
+                }
+                placeholder="Fiscal Year"
+                className="w-full px-3 py-2 border rounded"
+                required
+              />
+              <input
+                type="number"
+                name="total_budget"
+                value={newBudget.total_budget}
+                onChange={(e) =>
+                  setNewBudget((prev) => ({ ...prev, total_budget: e.target.value }))
+                }
+                placeholder="Total Budget"
+                className="w-full px-3 py-2 border rounded"
+                required
+              />
+            </form>
+            <div className="mt-4 flex justify-between">
+              <button
+                className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+                onClick={handleAddNewBudget}
+              >
+                Submit
+              </button>
+              <button
+                className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+                onClick={() => {
+                  setNewBudget({
+                    fiscal_year: "",
+                    total_budget: "",
+                  })
+                  setIsModalOpen(false)
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

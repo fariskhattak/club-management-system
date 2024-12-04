@@ -11,6 +11,14 @@ interface Expense {
     category?: string;
 }
 
+interface Budget {
+    budget_id: number;
+    fiscal_year: number;
+    total_budget: number;
+    spent_amount: number;
+    remaining_amount: number;
+}
+
 interface Club {
     club_id: number;
 }
@@ -18,11 +26,13 @@ interface Club {
 interface ExpenseListProps {
     currentClub: Club | null;
     fiscal_year: number | null;
+    budget: Budget | null;
+    setBudget: (b: Budget)  => void;
 }
 
 const ITEMS_PER_PAGE = 10;
 
-const ExpensesList: React.FC<ExpenseListProps> = ({ currentClub, fiscal_year }) => {
+const ExpensesList: React.FC<ExpenseListProps> = ({ currentClub, fiscal_year, budget, setBudget }) => {
     const [expenses, setExpenses] = useState<Expense[]>([]);
     const [filteredExpenses, setFilteredExpenses] = useState<Expense[]>([]);
     const [loading, setLoading] = useState(false);
@@ -43,6 +53,25 @@ const ExpensesList: React.FC<ExpenseListProps> = ({ currentClub, fiscal_year }) 
         description: "",
         category: "",
     });
+    const [categories, setCategories] = useState<string[]>([]);
+
+    const fetchCategories = async () => {
+        try {
+            const response = await fetch("http://localhost:5001/api/expenses/categories");
+            if (response.ok) {
+                const data = await response.json();
+                setCategories(data.categories);
+            } else {
+                console.error("Failed to fetch categories");
+            }
+        } catch (error) {
+            console.error("Error fetching categories:", error);
+        }
+    };
+
+    useEffect(() => {
+        fetchCategories();
+    }, []);
 
     const fetchExpenses = async () => {
         if (!currentClub || !fiscal_year) return;
@@ -101,12 +130,50 @@ const ExpensesList: React.FC<ExpenseListProps> = ({ currentClub, fiscal_year }) 
     };
 
 
+    // const handleAddExpense = async () => {
+    //     if (!currentClub) {
+    //         toast.error("No club selected.");
+    //         return;
+    //     }
+
+    //     try {
+    //         const response = await fetch(
+    //             `http://localhost:5001/api/clubs/${currentClub.club_id}/expenses`,
+    //             {
+    //                 method: "POST",
+    //                 headers: { "Content-Type": "application/json" },
+    //                 body: JSON.stringify(formData),
+    //             }
+    //         );
+
+    //         if (response.ok) {
+    //             toast.success("Expense added successfully!");
+    //             setIsModalOpen(false); // Close modal
+    //             setFormData({
+    //                 budget_id: 0,
+    //                 expense_name: "",
+    //                 expense_amount: "",
+    //                 expense_date: "",
+    //                 description: "",
+    //                 category: "",
+    //             }); // Reset form fields
+    //             fetchExpenses(); // Refresh expenses
+    //         } else {
+    //             const errorData = await response.json();
+    //             toast.error(errorData.error || "Failed to add expense.");
+    //         }
+    //     } catch (error) {
+    //         console.error("Error adding expense:", error);
+    //         toast.error("An error occurred while adding the expense.");
+    //     }
+    // };
+
     const handleAddExpense = async () => {
-        if (!currentClub) {
-            toast.error("No club selected.");
+        if (!currentClub || !budget) {
+            toast.error("No club or budget selected.");
             return;
         }
-
+    
         try {
             const response = await fetch(
                 `http://localhost:5001/api/clubs/${currentClub.club_id}/expenses`,
@@ -116,9 +183,23 @@ const ExpensesList: React.FC<ExpenseListProps> = ({ currentClub, fiscal_year }) 
                     body: JSON.stringify(formData),
                 }
             );
-
+    
             if (response.ok) {
+                const addedExpense = await response.json(); // Assuming the response returns the added expense
                 toast.success("Expense added successfully!");
+    
+                // Update budget
+                const newSpentAmount = budget.spent_amount + parseFloat(formData.expense_amount);
+                const newRemainingAmount = budget.total_budget - newSpentAmount;
+    
+                setBudget({
+                    ...budget,
+                    spent_amount: newSpentAmount,
+                    remaining_amount: newRemainingAmount,
+                });
+    
+                // Refresh expenses
+                fetchExpenses();
                 setIsModalOpen(false); // Close modal
                 setFormData({
                     budget_id: 0,
@@ -128,7 +209,6 @@ const ExpensesList: React.FC<ExpenseListProps> = ({ currentClub, fiscal_year }) 
                     description: "",
                     category: "",
                 }); // Reset form fields
-                fetchExpenses(); // Refresh expenses
             } else {
                 const errorData = await response.json();
                 toast.error(errorData.error || "Failed to add expense.");
@@ -138,6 +218,7 @@ const ExpensesList: React.FC<ExpenseListProps> = ({ currentClub, fiscal_year }) 
             toast.error("An error occurred while adding the expense.");
         }
     };
+    
 
 
     const handleRemoveExpense = (expense: Expense) => {
@@ -146,21 +227,34 @@ const ExpensesList: React.FC<ExpenseListProps> = ({ currentClub, fiscal_year }) 
     };
 
     const confirmDeleteExpense = async () => {
-        if (!currentClub || !expenseToDelete) return;
-
+        if (!currentClub || !expenseToDelete || !budget) return;
+    
         try {
             const response = await fetch(
                 `http://localhost:5001/api/clubs/${currentClub.club_id}/expenses/${expenseToDelete.expense_id}`,
                 { method: "DELETE" }
             );
-
+    
             if (response.ok) {
                 toast.success("Expense removed successfully!");
+    
+                // Update budget
+                const newSpentAmount = budget.spent_amount - expenseToDelete.expense_amount;
+                const newRemainingAmount = budget.total_budget - newSpentAmount;
+    
+                setBudget({
+                    ...budget,
+                    spent_amount: newSpentAmount,
+                    remaining_amount: newRemainingAmount,
+                });
+    
+                // Refresh expenses
                 setExpenses((prev) =>
                     prev.filter((exp) => exp.expense_id !== expenseToDelete.expense_id)
-                ); // Update expense list
+                );
                 setIsDeleteModalOpen(false); // Close delete modal
                 setExpenseToDelete(null); // Clear selected expense
+                fetchExpenses();
             } else {
                 const errorData = await response.json();
                 toast.error(errorData.error || "Failed to remove expense.");
@@ -170,6 +264,7 @@ const ExpensesList: React.FC<ExpenseListProps> = ({ currentClub, fiscal_year }) 
             toast.error("An error occurred while removing the expense.");
         }
     };
+    
 
     useEffect(() => {
         fetchExpenses();
@@ -185,7 +280,7 @@ const ExpensesList: React.FC<ExpenseListProps> = ({ currentClub, fiscal_year }) 
     return (
         <div className="p-4 bg-white rounded shadow text-black">
             <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-bold">Expenses</h2>
+                <h2 className="text-xl font-bold">Expenses for {fiscal_year}</h2>
                 <button
                     className="bg-cms_soft_teal font-bold text-white px-4 py-2 rounded hover:bg-cyan-700"
                     onClick={() => setIsModalOpen(true)}
@@ -241,6 +336,7 @@ const ExpensesList: React.FC<ExpenseListProps> = ({ currentClub, fiscal_year }) 
                                 <th className="border px-4 py-2 text-left bg-cms_light_purple">Amount</th>
                                 <th className="border px-4 py-2 text-left bg-cms_light_purple">Date</th>
                                 <th className="border px-4 py-2 text-left bg-cms_light_purple">Category</th>
+                                <th className="border px-4 py-2 text-left bg-cms_light_purple">Description</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -270,6 +366,7 @@ const ExpensesList: React.FC<ExpenseListProps> = ({ currentClub, fiscal_year }) 
                                     <td className="border px-4 py-2">${expense.expense_amount.toFixed(2)}</td>
                                     <td className="border px-4 py-2">{expense.expense_date}</td>
                                     <td className="border px-4 py-2">{expense.category || "N/A"}</td>
+                                    <td className="border px-4 py-2">{expense.description || "N/A"}</td>
                                 </tr>
                             ))}
                         </tbody>
@@ -280,8 +377,8 @@ const ExpensesList: React.FC<ExpenseListProps> = ({ currentClub, fiscal_year }) 
                                 key={page}
                                 onClick={() => setCurrentPage(page)}
                                 className={`px-3 py-1 border rounded ${currentPage === page
-                                    ? "bg-cms_dark_purple text-white"
-                                    : "bg-gray-200 text-gray-800 hover:bg-gray-300"
+                                        ? "bg-cms_dark_purple text-white"
+                                        : "bg-gray-200 text-gray-800 hover:bg-gray-300"
                                     }`}
                             >
                                 {page}
@@ -289,6 +386,7 @@ const ExpensesList: React.FC<ExpenseListProps> = ({ currentClub, fiscal_year }) 
                         ))}
                     </div>
                 </>
+
             ) : (
                 <p>No expenses found for this club.</p>
             )}
@@ -331,7 +429,7 @@ const ExpensesList: React.FC<ExpenseListProps> = ({ currentClub, fiscal_year }) 
                                 className="w-full px-3 py-2 border rounded"
                                 required
                             />
-                            <input
+                            {/* <input
                                 type="text"
                                 name="category"
                                 value={formData.category}
@@ -340,7 +438,22 @@ const ExpensesList: React.FC<ExpenseListProps> = ({ currentClub, fiscal_year }) 
                                 }
                                 placeholder="Category"
                                 className="w-full px-3 py-2 border rounded"
-                            />
+                            /> */}
+                            <select
+                                name="category"
+                                value={formData.category}
+                                onChange={(e) =>
+                                    setFormData((prev) => ({ ...prev, category: e.target.value }))
+                                }
+                                className="w-full px-3 py-2 border rounded"
+                            >
+                                <option value="">Select a category</option>
+                                {categories.map((category) => (
+                                    <option key={category} value={category}>
+                                        {category}
+                                    </option>
+                                ))}
+                            </select>
                             <textarea
                                 name="description"
                                 value={formData.description}
