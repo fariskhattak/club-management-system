@@ -114,7 +114,7 @@ const SideNavbar: React.FC<SideNavbarProps> = ({ clubs, onSelectClub, refreshClu
       {isModalOpen && (
         <div className="fixed inset-0  bg-gray-900 bg-opacity-50 flex items-center justify-center z-20">
           <div className="rounded-lg shadow-lg w-96 p-6 bg-cms_purple ">
-            <h2 className="text-xl font-bold mb-4 ">Add New Club</h2>
+            <h2 className="text-xl font-bold mb-4 text-white">Add New Club</h2>
             <form className="space-y-4">
               <input
                 type="text"
@@ -167,15 +167,15 @@ const SideNavbar: React.FC<SideNavbarProps> = ({ clubs, onSelectClub, refreshClu
                 className="w-full px-3 py-2 border rounded text-black"
               />
             </form>
-            <div className="mt-4 flex space-x-2">
+            <div className="mt-4 flex justify-between">
               <button
-                className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+                className="bg-cms_accept text-white px-4 py-2 rounded hover:bg-green-600"
                 onClick={handleAddClub}
               >
                 Submit
               </button>
               <button
-                className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+                className="bg-cms_deny text-white px-4 py-2 rounded hover:bg-red-600"
                 onClick={() => {
                   setIsModalOpen(false);
                   setFormData({

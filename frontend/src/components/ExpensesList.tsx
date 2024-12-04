@@ -377,7 +377,7 @@ const ExpensesList: React.FC<ExpenseListProps> = ({ currentClub, fiscal_year, bu
                                 key={page}
                                 onClick={() => setCurrentPage(page)}
                                 className={`px-3 py-1 border rounded ${currentPage === page
-                                        ? "bg-cms_dark_purple text-white"
+                                        ? "bg-cms_purple text-white"
                                         : "bg-gray-200 text-gray-800 hover:bg-gray-300"
                                     }`}
                             >

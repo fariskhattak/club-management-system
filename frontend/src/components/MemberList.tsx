@@ -480,15 +480,15 @@ const MemberList: React.FC<MemberListProps> = ({ currentClub, onMemberAdded }) =
                 className="w-full px-3 py-2 border rounded"
               />
             </form>
-            <div className="mt-4 flex space-x-2">
+            <div className="mt-4 flex justify-between">
               <button
-                className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+                className="bg-cms_accept text-white px-4 py-2 rounded hover:bg-green-700"
                 onClick={handleAddMember}
               >
                 Submit
               </button>
               <button
-                className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+                className="bg-cms_deny text-white px-4 py-2 rounded hover:bg-red-600"
                 onClick={() => setIsModalOpen(false)}
               >
                 Cancel
