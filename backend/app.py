@@ -18,7 +18,7 @@ from models import (
     EventHosting,
     Expense,
 )
-from datetime import datetime
+from datetime import datetime, date
 
 app = Flask(__name__)
 CORS(app, resources={r"/api/*": {"origins": "*"}})
@@ -455,7 +455,7 @@ def get_club_sponsors(club_id):
             "phone_number": sponsor.phone_number,
             "address": sponsor.address,
             "contribution_amount": sponsor.contribution_amount,
-            "contribution_date": sponsor.contribution_date,
+            "contribution_date": sponsor.contribution_date.isoformat(),
         }
         for sponsor in sponsors
     ]
@@ -554,8 +554,6 @@ def get_budget_years(club_id):
     fiscal_years_list = [year[0] for year in fiscal_years]
     return jsonify({"fiscal_years": fiscal_years_list}), 200
 
-from flask import jsonify, request
-from models import db, Budget
 
 @app.route('/api/clubs/<int:club_id>/budget/update', methods=['PUT'])
 def update_budget(club_id):
@@ -604,7 +602,22 @@ def update_budget(club_id):
 
 @app.route("/api/clubs/<int:club_id>/expenses", methods=["GET"])
 def get_expenses_for_club(club_id):
-    expenses = Expense.query.filter_by(club_id=club_id).all()
+    fiscal_year = request.args.get("fiscal_year")  # Get fiscal year from query parameters
+    # Query expenses based on club_id
+    query = Expense.query.filter_by(club_id=club_id)
+
+    if fiscal_year:
+        fiscal_year = int(fiscal_year)
+
+        # Define the start and end dates of the fiscal year
+        fiscal_year_start = date(fiscal_year, 1, 1)  # Adjust based on fiscal year start date
+        fiscal_year_end = date(fiscal_year + 1, 1, 1)  # Fiscal year ends on the last day before this date
+
+        # Filter expenses based on their date being within the fiscal year range
+        query = query.filter(Expense.expense_date >= fiscal_year_start, Expense.expense_date < fiscal_year_end)
+
+    expenses = query.all()
+
     if not expenses:
         return jsonify({"message": "No expenses found for this club"}), 200
 
@@ -626,8 +639,7 @@ def get_expenses_for_club(club_id):
 def search_expenses(club_id):
     name = request.args.get("expense_name", "").strip()
     category = request.args.get("category", "").strip()
-    start_date = request.args.get("start_date")
-    end_date = request.args.get("end_date")
+    fiscal_year = request.args.get("fiscal_year")  # Get fiscal year from query parameters
 
     try:
         # Build query filters
@@ -636,17 +648,20 @@ def search_expenses(club_id):
             filters.append(Expense.expense_name.ilike(f"%{name}%"))
         if category:
             filters.append(Expense.category.ilike(f"%{category}%"))
-        if start_date and end_date:
-            filters.append(
-                Expense.expense_date.between(
-                    datetime.strptime(start_date, "%Y-%m-%d"),
-                    datetime.strptime(end_date, "%Y-%m-%d"),
-                )
-            )
+        if fiscal_year:
+            fiscal_year = int(fiscal_year)
+            fiscal_year_start = date(fiscal_year, 1, 1)  # Adjust if fiscal year starts on a different date
+            fiscal_year_end = date(fiscal_year + 1, 1, 1)  # End of fiscal year (exclusive)
+            filters.append(Expense.expense_date >= fiscal_year_start)
+            filters.append(Expense.expense_date < fiscal_year_end)
 
         # Query expenses
         expenses = Expense.query.filter(and_(*filters)).all()
 
+        if not expenses:
+            return jsonify({"expenses": []}), 200
+
+        # Format the result
         expense_list = [
             {
                 "expense_id": expense.expense_id,
@@ -660,6 +675,7 @@ def search_expenses(club_id):
         ]
 
         return jsonify({"expenses": expense_list}), 200
+
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 

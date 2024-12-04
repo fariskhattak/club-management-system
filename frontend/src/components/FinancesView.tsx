@@ -94,6 +94,15 @@ const FinancesView: React.FC<FinancesViewProps> = ({ currentClub }) => {
                 </div>
             </div>
 
+            {/* Expenses List Section */}
+            <div className="mb-2">
+                {currentClub ? (
+                    <ExpensesList currentClub={currentClub} fiscal_year={selectedYear} />
+                ) : (
+                    <p className="text-gray-600 italic">Select a club to view its sponsors.</p>
+                )}
+            </div>
+
             {/* Sponsors Section */}
             <div className="mb-2">
                 {currentClub ? (
@@ -102,13 +111,7 @@ const FinancesView: React.FC<FinancesViewProps> = ({ currentClub }) => {
                     <p className="text-gray-600 italic">Select a club to view its sponsors.</p>
                 )}
             </div>
-            <div className="mb-2">
-                {currentClub ? (
-                    <ExpensesList currentClub={currentClub} />
-                ) : (
-                    <p className="text-gray-600 italic">Select a club to view its sponsors.</p>
-                )}
-            </div>
+
 
 
         </>

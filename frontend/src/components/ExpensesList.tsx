@@ -17,11 +17,12 @@ interface Club {
 
 interface ExpenseListProps {
     currentClub: Club | null;
+    fiscal_year: number | null;
 }
 
 const ITEMS_PER_PAGE = 10;
 
-const ExpensesList: React.FC<ExpenseListProps> = ({ currentClub }) => {
+const ExpensesList: React.FC<ExpenseListProps> = ({ currentClub, fiscal_year }) => {
     const [expenses, setExpenses] = useState<Expense[]>([]);
     const [filteredExpenses, setFilteredExpenses] = useState<Expense[]>([]);
     const [loading, setLoading] = useState(false);
@@ -31,7 +32,6 @@ const ExpensesList: React.FC<ExpenseListProps> = ({ currentClub }) => {
     const [currentPage, setCurrentPage] = useState(1);
     const [searchParams, setSearchParams] = useState({
         expense_name: "",
-        expense_amount: "",
         expense_date: "",
         category: "",
     });
@@ -45,17 +45,17 @@ const ExpensesList: React.FC<ExpenseListProps> = ({ currentClub }) => {
     });
 
     const fetchExpenses = async () => {
-        if (!currentClub) return;
+        if (!currentClub || !fiscal_year) return;
 
         setLoading(true);
         try {
             const response = await fetch(
-                `http://localhost:5001/api/clubs/${currentClub.club_id}/expenses`
+                `http://localhost:5001/api/clubs/${currentClub.club_id}/expenses?fiscal_year=${fiscal_year}`
             );
             if (response.ok) {
                 const data = await response.json();
                 setExpenses(data.expenses);
-                setFilteredExpenses(data.expenses); // Initialize filtered expenses
+                setFilteredExpenses(data.expenses || []);
             } else {
                 console.error("Failed to fetch expenses:", response.statusText);
             }
@@ -69,15 +69,38 @@ const ExpensesList: React.FC<ExpenseListProps> = ({ currentClub }) => {
     const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setSearchParams((prev) => ({ ...prev, [name]: value }));
-
-        const filtered = expenses.filter((expense) => {
-            const expenseString = expense[name as keyof Expense]?.toString().toLowerCase() || "";
-            return expenseString.includes(value.toLowerCase());
-        });
-        setFilteredExpenses(filtered);
     };
 
-    
+    const handleSearch = async () => {
+        if (!currentClub) return;
+
+        setLoading(true);
+        try {
+            const query = new URLSearchParams(searchParams).toString();
+            console.log(query)
+            const response = await fetch(
+                `http://localhost:5001/api/clubs/${currentClub.club_id}/expenses/search?${query}&fiscal_year=${fiscal_year}`
+            );
+
+            if (response.ok) {
+                const data = await response.json();
+                setFilteredExpenses(data.expenses);
+                console.log(data.expenses)
+
+                if (data.expenses.length === 0) {
+                    toast.info("No expenses found matching the criteria.");
+                }
+            } else {
+                console.error("Failed to search expenses:", response.statusText);
+            }
+        } catch (error) {
+            console.error("Error searching expenses:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+
     const handleAddExpense = async () => {
         if (!currentClub) {
             toast.error("No club selected.");
@@ -150,7 +173,7 @@ const ExpensesList: React.FC<ExpenseListProps> = ({ currentClub }) => {
 
     useEffect(() => {
         fetchExpenses();
-    }, [currentClub]);
+    }, [currentClub, fiscal_year]);
 
     const totalPages = Math.ceil(filteredExpenses.length / ITEMS_PER_PAGE);
 
@@ -160,11 +183,11 @@ const ExpensesList: React.FC<ExpenseListProps> = ({ currentClub }) => {
     );
 
     return (
-        <div className="text-black">
+        <div className="p-4 bg-white rounded shadow text-black">
             <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-bold">Expenses List</h2>
+                <h2 className="text-xl font-bold">Expenses</h2>
                 <button
-                    className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                    className="bg-cms_soft_teal font-bold text-white px-4 py-2 rounded hover:bg-cyan-700"
                     onClick={() => setIsModalOpen(true)}
                 >
                     Add Expense
@@ -179,14 +202,6 @@ const ExpensesList: React.FC<ExpenseListProps> = ({ currentClub }) => {
                     value={searchParams.expense_name}
                     onChange={handleSearchInputChange}
                     placeholder="Expense Name"
-                    className="px-4 py-2 border rounded"
-                />
-                <input
-                    type="number"
-                    name="expense_amount"
-                    value={searchParams.expense_amount}
-                    onChange={handleSearchInputChange}
-                    placeholder="Expense Amount"
                     className="px-4 py-2 border rounded"
                 />
                 <input
@@ -206,6 +221,14 @@ const ExpensesList: React.FC<ExpenseListProps> = ({ currentClub }) => {
                     className="px-4 py-2 border rounded"
                 />
             </div>
+            <div className="mt-2 mb-4">
+                <button
+                    onClick={handleSearch}
+                    className="bg-cms_soft_teal text-white px-4 py-2 rounded hover:bg-cyan-700 font-bold"
+                >
+                    Search
+                </button>
+            </div>
 
             {loading ? (
                 <p>Loading expenses...</p>
@@ -214,10 +237,10 @@ const ExpensesList: React.FC<ExpenseListProps> = ({ currentClub }) => {
                     <table className="table-auto w-full border">
                         <thead>
                             <tr>
-                                <th className="border px-4 py-2 text-left bg-gray-200">Name</th>
-                                <th className="border px-4 py-2 text-left bg-gray-200">Amount</th>
-                                <th className="border px-4 py-2 text-left bg-gray-200">Date</th>
-                                <th className="border px-4 py-2 text-left bg-gray-200">Category</th>
+                                <th className="border px-4 py-2 text-left bg-cms_light_purple">Name</th>
+                                <th className="border px-4 py-2 text-left bg-cms_light_purple">Amount</th>
+                                <th className="border px-4 py-2 text-left bg-cms_light_purple">Date</th>
+                                <th className="border px-4 py-2 text-left bg-cms_light_purple">Category</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -257,8 +280,8 @@ const ExpensesList: React.FC<ExpenseListProps> = ({ currentClub }) => {
                                 key={page}
                                 onClick={() => setCurrentPage(page)}
                                 className={`px-3 py-1 border rounded ${currentPage === page
-                                        ? "bg-blue-500 text-white"
-                                        : "bg-gray-200 text-gray-800 hover:bg-gray-300"
+                                    ? "bg-cms_dark_purple text-white"
+                                    : "bg-gray-200 text-gray-800 hover:bg-gray-300"
                                     }`}
                             >
                                 {page}
@@ -273,7 +296,7 @@ const ExpensesList: React.FC<ExpenseListProps> = ({ currentClub }) => {
             {/* Add Expense Modal */}
             {isModalOpen && (
                 <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-lg shadow-lg p-6 w-96">
+                    <div className="bg-cms_purple rounded-lg shadow-lg p-6 w-96">
                         <h2 className="text-lg font-bold mb-4">Add New Expense</h2>
                         <form className="space-y-4">
                             <input

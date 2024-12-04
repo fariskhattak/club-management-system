@@ -222,9 +222,9 @@ const MemberList: React.FC<MemberListProps> = ({ currentClub, onMemberAdded }) =
     <div className="text-black">
       <div className="flex flex-col gap-4 mb-4">
         <div className="flex justify-between items-center">
-          <h2 className="text-xl font-bold">Members List</h2>
+          <h2 className="text-xl font-bold">Members</h2>
           <button
-            className="bg-cms_soft_teal text-white px-4 py-2 rounded hover:bg-cms_light_purple font-bold"
+            className="bg-cms_soft_teal text-white px-4 py-2 rounded hover:bg-cyan-700 font-bold"
             onClick={() => setIsModalOpen(true)}
           >
             Add Member
@@ -285,7 +285,7 @@ const MemberList: React.FC<MemberListProps> = ({ currentClub, onMemberAdded }) =
         <div className="mt-2">
           <button
             onClick={handleSearch}
-            className="bg-cms_soft_teal text-white px-4 py-2 rounded hover:bg-cms_light_purple font-bold"
+            className="bg-cms_soft_teal text-white px-4 py-2 rounded hover:bg-cyan-700 font-bold"
           >
             Search
           </button>
