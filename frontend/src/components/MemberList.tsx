@@ -301,7 +301,7 @@ const MemberList: React.FC<MemberListProps> = ({ currentClub, onMemberAdded }) =
               <tr>
                 <th className="border px-4 py-2 text-left align-middle bg-cms_light_purple">Name</th>
                 <th className="border px-4 py-2 text-left align-middle bg-cms_light_purple">Student ID</th>
-                <th className="border px-4 py-2 text-left align-middle bg-cms_light_purple">Email</th>
+                <th className="border px-4 py-2 text-left align-middle bg-cms_light_purple">Contact</th>
                 <th className="border px-4 py-2 text-left align-middle bg-cms_light_purple">Major</th>
                 <th className="border px-4 py-2 text-left align-middle bg-cms_light_purple">Graduation Year</th>
               </tr>
@@ -309,29 +309,35 @@ const MemberList: React.FC<MemberListProps> = ({ currentClub, onMemberAdded }) =
             <tbody>
               {paginatedMembers.map((member, index) => (
                 <tr key={index}>
-                  <td className="border px-4 py-2 flex items-center justify-between group">
-                    <span>{`${member?.first_name || "N/A"} ${member?.last_name || "N/A"}`}</span>
-                    <button
-                      onClick={() => handleRemoveMember(member)}
-                      className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-red-500 hover:text-red-700 ml-2"
-                      title="Remove Member"
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24"
-                        fill="currentColor"
-                        className="w-5 h-5"
+                  <td className="border px-4 py-2 group">
+                    <div className="flex items-center justify-between">
+                      <span>{`${member?.first_name || "N/A"} ${member?.last_name || "N/A"}`}</span>
+                      <button
+                        onClick={() => handleRemoveMember(member)}
+                        className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-red-500 hover:text-red-700 ml-2"
+                        title="Remove Member"
                       >
-                        <path
-                          fillRule="evenodd"
-                          d="M9 3a3 3 0 00-3 3v1H4.5a.75.75 0 000 1.5h15a.75.75 0 000-1.5H18V6a3 3 0 00-3-3H9zM6.75 7.5v12a2.25 2.25 0 002.25 2.25h6a2.25 2.25 0 002.25-2.25v-12H6.75zm3 3a.75.75 0 011.5 0v6a.75.75 0 01-1.5 0v-6zm4.5 0a.75.75 0 011.5 0v6a.75.75 0 01-1.5 0v-6z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    </button>
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 24 24"
+                          fill="currentColor"
+                          className="w-6 h-6"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M9 3a3 3 0 00-3 3v1H4.5a.75.75 0 000 1.5h15a.75.75 0 000-1.5H18V6a3 3 0 00-3-3H9zM6.75 7.5v12a2.25 2.25 0 002.25 2.25h6a2.25 2.25 0 002.25-2.25v-12H6.75zm3 3a.75.75 0 011.5 0v6a.75.75 0 01-1.5 0v-6zm4.5 0a.75.75 0 011.5 0v6a.75.75 0 01-1.5 0v-6z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      </button>
+                    </div>
                   </td>
+
                   <td className="border px-4 py-2">{member?.student_id || "N/A"}</td>
-                  <td className="border px-4 py-2">{member?.email || "N/A"}</td>
+                  <td className="border px-4 py-2">
+                    <p>{member?.email || "N/A"}</p> {/* Email */}
+                    <p>{member?.phone_number || "N/A"}</p> {/* Phone Number */}
+                  </td>
                   <td className="border px-4 py-2">{member?.major || "N/A"}</td>
                   <td className="border px-4 py-2">{member?.graduation_year || "N/A"}</td>
                 </tr>
@@ -356,7 +362,25 @@ const MemberList: React.FC<MemberListProps> = ({ currentClub, onMemberAdded }) =
           </div>
         </>
       ) : (
-        <p>No members found for this club.</p>
+        <div>
+          {Object.values(searchParams).some((param) => param) ? (
+            <>
+              <span>
+                No members found matching your search criteria:
+              </span>
+              <ul className="mt-2 ml-4 list-disc">
+                {searchParams.first_name && <li>First Name: {searchParams.first_name}</li>}
+                {searchParams.last_name && <li>Last Name: {searchParams.last_name}</li>}
+                {searchParams.student_id && <li>Student ID: {searchParams.student_id}</li>}
+                {searchParams.email && <li>Email: {searchParams.email}</li>}
+                {searchParams.major && <li>Major: {searchParams.major}</li>}
+                {searchParams.graduation_year && <li>Graduation Year: {searchParams.graduation_year}</li>}
+              </ul>
+            </>
+          ) : (
+            <span>No members found for this club.</span>
+          )}
+        </div>
       )}
 
       {/* Delete Member Modal */}

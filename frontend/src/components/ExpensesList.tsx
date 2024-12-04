@@ -388,14 +388,14 @@ const ExpensesList: React.FC<ExpenseListProps> = ({ currentClub, fiscal_year, bu
                 </>
 
             ) : (
-                <p>No expenses found for this club.</p>
+                <p>No expenses found for the {fiscal_year} fiscal year.</p>
             )}
 
             {/* Add Expense Modal */}
             {isModalOpen && (
                 <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
                     <div className="bg-cms_purple rounded-lg shadow-lg p-6 w-96">
-                        <h2 className="text-lg font-bold mb-4">Add New Expense</h2>
+                        <h2 className="text-lg font-bold mb-4 text-white">Add New Expense</h2>
                         <form className="space-y-4">
                             <input
                                 type="text"
@@ -466,13 +466,13 @@ const ExpensesList: React.FC<ExpenseListProps> = ({ currentClub, fiscal_year, bu
                         </form>
                         <div className="mt-4 flex justify-between">
                             <button
-                                className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+                                className="bg-cms_accept text-white px-4 py-2 rounded hover:bg-green-600"
                                 onClick={handleAddExpense}
                             >
                                 Submit
                             </button>
                             <button
-                                className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+                                className="bg-cms_deny text-white px-4 py-2 rounded hover:bg-red-600"
                                 onClick={() => {
                                     setIsModalOpen(false); // Close the modal
                                     setFormData({

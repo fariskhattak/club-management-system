@@ -20,6 +20,8 @@ export default {
         cms_soft_teal: "#68B8C4",
         cms_golden_yellow: "#F1C75B",
         cms_soft_pink: "#D884B0",
+        cms_accept: "#68C471", 
+        cms_deny: "#E25C4D",  
       },
     },
   },

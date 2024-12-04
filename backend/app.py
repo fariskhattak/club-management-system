@@ -435,6 +435,7 @@ def get_club_sponsors(club_id):
             Sponsor.contact_email,
             Sponsor.phone_number,
             Sponsor.address,
+            SponsorshipContribution.sponsorship_id,
             SponsorshipContribution.contribution_amount,
             SponsorshipContribution.contribution_date,
         )
@@ -454,6 +455,7 @@ def get_club_sponsors(club_id):
             "contact_email": sponsor.contact_email,
             "phone_number": sponsor.phone_number,
             "address": sponsor.address,
+            "sponsorship_id": sponsor.sponsorship_id,
             "contribution_amount": sponsor.contribution_amount,
             "contribution_date": sponsor.contribution_date.isoformat(),
         }
@@ -466,6 +468,9 @@ def get_club_sponsors(club_id):
 @app.route("/api/clubs/<int:club_id>/sponsors", methods=["POST"])
 def add_sponsor_or_contribution(club_id):
     data = request.json
+    if not data.get("sponsor_name") or not data.get("contribution_amount") or not data.get("contribution_date"):
+        return jsonify({"error": "Missing required fields: sponsor_name, contribution_amount, or contribution_date"}), 400
+
     try:
         # Check if sponsor already exists
         sponsor = Sponsor.query.filter_by(sponsor_name=data["sponsor_name"]).first()
@@ -502,6 +507,100 @@ def add_sponsor_or_contribution(club_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": str(e)}), 400
+    
+@app.route("/api/clubs/<int:club_id>/sponsors/search", methods=["GET"])
+def search_sponsors(club_id):
+    # Get search parameters from the request
+    sponsor_name = request.args.get("sponsor_name", "").strip()
+    contact_person = request.args.get("contact_person", "").strip()
+    contact_email = request.args.get("contact_email", "").strip()
+    from_date = request.args.get("from_date", "").strip()  # Search from this date onwards
+    to_date = request.args.get("to_date", "").strip()  # Search up to this date
+
+    try:
+        # Build query filters
+        filters = [SponsorshipContribution.club_id == club_id]
+
+        if sponsor_name:
+            filters.append(Sponsor.sponsor_name.ilike(f"%{sponsor_name}%"))
+        if contact_person:
+            filters.append(Sponsor.contact_person.ilike(f"%{contact_person}%"))
+        if contact_email:
+            filters.append(Sponsor.contact_email.ilike(f"%{contact_email}%"))
+        if from_date:
+            from_date_obj = datetime.strptime(from_date, "%Y-%m-%d").date()
+            filters.append(SponsorshipContribution.contribution_date >= from_date_obj)
+        if to_date:
+            to_date_obj = datetime.strptime(to_date, "%Y-%m-%d").date()
+            filters.append(SponsorshipContribution.contribution_date <= to_date_obj)
+
+        # Query sponsors
+        sponsors = (
+            db.session.query(
+                Sponsor.sponsor_id,
+                Sponsor.sponsor_name,
+                Sponsor.contact_person,
+                Sponsor.contact_email,
+                Sponsor.phone_number,
+                Sponsor.address,
+                SponsorshipContribution.sponsorship_id,
+                SponsorshipContribution.contribution_amount,
+                SponsorshipContribution.contribution_date,
+            )
+            .join(
+                SponsorshipContribution,
+                SponsorshipContribution.sponsor_id == Sponsor.sponsor_id,
+            )
+            .filter(and_(*filters))
+            .all()
+        )
+
+        if not sponsors:
+            return jsonify({"sponsors": []}), 200
+
+        # Format sponsors for JSON response
+        sponsor_list = [
+            {
+                "sponsor_id": sponsor.sponsor_id,
+                "sponsor_name": sponsor.sponsor_name,
+                "contact_person": sponsor.contact_person,
+                "contact_email": sponsor.contact_email,
+                "phone_number": sponsor.phone_number,
+                "address": sponsor.address,
+                "sponsorship_id": sponsor.sponsorship_id,
+                "contribution_amount": sponsor.contribution_amount,
+                "contribution_date": sponsor.contribution_date.isoformat(),
+            }
+            for sponsor in sponsors
+        ]
+
+        return jsonify({"sponsors": sponsor_list}), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+    
+@app.route("/api/clubs/<int:club_id>/sponsors/<int:sponsorship_id>", methods=["DELETE"])
+def delete_sponsorship_contribution(club_id, sponsorship_id):
+    """
+    Deletes a specific sponsorship contribution for a club.
+    """
+    try:
+        # Find the sponsorship contribution by club_id and sponsorship_id
+        contribution = SponsorshipContribution.query.filter_by(
+            club_id=club_id, sponsorship_id=sponsorship_id
+        ).first()
+
+        if not contribution:
+            return jsonify({"error": "Sponsorship contribution not found"}), 404
+
+        # Delete the sponsorship contribution
+        db.session.delete(contribution)
+        db.session.commit()
+        return jsonify({"message": "Sponsorship contribution deleted successfully"}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
 
 
 @app.route("/api/clubs/<int:club_id>/budget", methods=["GET"])

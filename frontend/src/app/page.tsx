@@ -29,21 +29,6 @@ export default function Home() {
   const [refreshGraphTrigger, setRefreshGraphTrigger] = useState(0);
   const [activeTab, setActiveTab] = useState("membership"); // Tracks the selected tab
 
-  const membershipData = [
-    { name: "January", value: 10 },
-    { name: "February", value: 20 },
-    { name: "March", value: 35 },
-    { name: "April", value: 50 },
-    { name: "May", value: 65 },
-    { name: "June", value: 80 },
-    { name: "July", value: 95 },
-    { name: "August", value: 110 },
-    { name: "September", value: 125 },
-    { name: "October", value: 140 },
-    { name: "November", value: 150 },
-    { name: "December", value: 165 },
-  ];
-
   const handleMemberAdded = () => {
     setRefreshGraphTrigger((prev) => prev + 1); // Increment to notify dependent components
   };
