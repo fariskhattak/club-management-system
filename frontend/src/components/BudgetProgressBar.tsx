@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 
-interface BudgetDetails {
+interface Budget {
+  budget_id: number;
   fiscal_year: number;
   total_budget: number;
   spent_amount: number;
@@ -8,54 +9,18 @@ interface BudgetDetails {
 }
 
 interface BudgetProgressBarProps {
-  clubId: number;
+  clubId: number | null;
+  budget: Budget | null;
+  fiscalYears: number[];
+  selectedYear: number | null;
+  loading: boolean;
+  setSelectedYear: (year: number) => void;
+  setBudget: (budget: Budget | null) => void;
 }
 
-const BudgetProgressBar: React.FC<BudgetProgressBarProps> = ({ clubId }) => {
-  const [fiscalYears, setFiscalYears] = useState<number[]>([]);
-  const [selectedYear, setSelectedYear] = useState<number | null>(null);
-  const [budget, setBudget] = useState<BudgetDetails | null>(null);
-  const [loading, setLoading] = useState(false);
+const BudgetProgressBar: React.FC<BudgetProgressBarProps> = ({ clubId, budget, fiscalYears, selectedYear, loading, setSelectedYear, setBudget }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [newTotalBudget, setNewTotalBudget] = useState<string>("");
-
-  const fetchFiscalYears = async () => {
-    try {
-      const response = await fetch(`http://localhost:5001/api/clubs/${clubId}/budget/years`);
-      if (response.ok) {
-        const data = await response.json();
-        setFiscalYears(data.fiscal_years);
-        if (data.fiscal_years.length > 0) {
-          setSelectedYear(data.fiscal_years[0]);
-        }
-      } else {
-        console.error("Failed to fetch fiscal years");
-      }
-    } catch (error) {
-      console.error("Error fetching fiscal years:", error);
-    }
-  };
-
-  const fetchBudget = async (year: number) => {
-    setLoading(true);
-    try {
-      const response = await fetch(
-        `http://localhost:5001/api/clubs/${clubId}/budget?fiscal_year=${year}`
-      );
-      if (response.ok) {
-        const data = await response.json();
-        setBudget(data["budget"]);
-      } else {
-        console.error("Failed to fetch budget data");
-        setBudget(null);
-      }
-    } catch (error) {
-      console.error("Error fetching budget data:", error);
-      setBudget(null);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const saveBudget = async () => {
     if (!selectedYear || !budget) return;
@@ -75,12 +40,14 @@ const BudgetProgressBar: React.FC<BudgetProgressBarProps> = ({ clubId }) => {
 
       if (response.ok) {
         const updatedBudget = await response.json();
-        setBudget((prev) => ({
-          ...prev!,
+        setBudget({
+          budget_id: budget.budget_id,
+          fiscal_year: selectedYear,
           total_budget: updatedBudget.total_budget,
-          remaining_amount:
-            updatedBudget.total_budget - prev!.spent_amount,
-        }));
+          spent_amount: budget?.spent_amount || 0,
+          remaining_amount: updatedBudget.total_budget - (budget?.spent_amount || 0),
+        });
+
         setIsEditing(false);
       } else {
         console.error("Failed to update budget");
@@ -89,18 +56,6 @@ const BudgetProgressBar: React.FC<BudgetProgressBarProps> = ({ clubId }) => {
       console.error("Error updating budget:", error);
     }
   };
-
-  useEffect(() => {
-    if (clubId) {
-      fetchFiscalYears();
-    }
-  }, [clubId]);
-
-  useEffect(() => {
-    if (selectedYear) {
-      fetchBudget(selectedYear);
-    }
-  }, [selectedYear]);
 
   return (
     <div className="w-full p-4 bg-white rounded-lg shadow-md text-black">
@@ -134,7 +89,7 @@ const BudgetProgressBar: React.FC<BudgetProgressBarProps> = ({ clubId }) => {
               <>
                 <span className="ml-2">${budget.total_budget.toFixed(2)}</span>
                 <button
-                  className="ml-4 bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700"
+                  className="ml-4 bg-cms_soft_teal text-white px-2 py-1 rounded hover:bg-cyan-700"
                   onClick={() => {
                     setIsEditing(true);
                     setNewTotalBudget(budget.total_budget.toString());
@@ -168,12 +123,12 @@ const BudgetProgressBar: React.FC<BudgetProgressBarProps> = ({ clubId }) => {
           </div>
           <div className="relative h-8 bg-gray-300 rounded-full overflow-hidden mb-2">
             <div
-              className="absolute h-full bg-blue-500"
+              className="absolute h-full bg-cms_soft_teal"
               style={{ width: `${(budget.spent_amount / budget.total_budget) * 100}%` }}
               title={`Spent: $${budget.spent_amount.toFixed(2)}`}
             ></div>
             <div
-              className="absolute h-full bg-green-500"
+              className="absolute h-full bg-cms_golden_yellow"
               style={{
                 width: `${(budget.remaining_amount / budget.total_budget) * 100}%`,
                 left: `${(budget.spent_amount / budget.total_budget) * 100}%`,

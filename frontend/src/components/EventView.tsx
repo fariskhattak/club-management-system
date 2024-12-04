@@ -98,11 +98,11 @@ const EventView: React.FC<EventViewProps> = ({ currentClub }) => {
         <table className="table-auto w-full border mb-8">
           <thead>
             <tr>
-              <th className="border px-4 py-2 text-left bg-navbar">Event Name</th>
-              <th className="border px-4 py-2 text-left bg-navbar">Date</th>
-              <th className="border px-4 py-2 text-left bg-navbar">Time</th>
-              <th className="border px-4 py-2 text-left bg-navbar">Location</th>
-              <th className="border px-4 py-2 text-left bg-navbar">Description</th>
+              <th className="border px-4 py-2 text-left bg-cms_light_purple">Event Name</th>
+              <th className="border px-4 py-2 text-left bg-cms_light_purple">Date</th>
+              <th className="border px-4 py-2 text-left bg-cms_light_purple">Time</th>
+              <th className="border px-4 py-2 text-left bg-cms_light_purple">Location</th>
+              <th className="border px-4 py-2 text-left bg-cms_light_purple">Description</th>
             </tr>
           </thead>
           <tbody>
@@ -127,9 +127,9 @@ const EventView: React.FC<EventViewProps> = ({ currentClub }) => {
                         <table className="table-auto w-full border">
                           <thead>
                             <tr>
-                              <th className="border px-4 py-2 text-left bg-navbar">Member Name</th>
-                              <th className="border px-4 py-2 text-left bg-navbar">Status</th>
-                              <th className="border px-4 py-2 text-left bg-navbar">Check-in Time</th>
+                              <th className="border px-4 py-2 text-left bg-cms_light_purple">Member Name</th>
+                              <th className="border px-4 py-2 text-left bg-cms_light_purple">Status</th>
+                              <th className="border px-4 py-2 text-left bg-cms_light_purple">Check-in Time</th>
                             </tr>
                           </thead>
                           <tbody>

@@ -108,13 +108,13 @@ export default function Home() {
               <LineGraph data={membershipData} />
             </div> */}
             <div className="grid grid-cols-12 gap-4 mb-4">
-              <div className="col-span-6 bg-white p-4 shadow rounded">
+              <div className="col-span-6 p-4 shadow rounded bg-cms_light_purple">
                 <MajorGraph
                   currentClub={currentClub}
                   refreshGraphTrigger={refreshGraphTrigger}
                 />
               </div>
-              <div className="col-span-6 bg-white p-4 shadow rounded">
+              <div className="col-span-6 bg-cms_light_purple p-4 shadow rounded">
                 <GraduationGraph
                   currentClub={currentClub}
                   refreshGraphTrigger={refreshGraphTrigger}

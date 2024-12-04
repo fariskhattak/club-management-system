@@ -9,10 +9,17 @@ export default {
   theme: {
     extend: {
       colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
-        navbar: "#8884d8",
-        navbar_hover: "#aaa9e6",
+        cms_background: "#F9F9FB",
+        cms_background_dark: "#2C2F36",
+        cms_text_dark: "#333333",
+        cms_text_light: "#FFFFFF",
+        cms_border: "#C5C6D0",
+        cms_purple: "#8884d8",
+        cms_light_purple: "#B2AFEF",
+        cms_dark_purple: "#5A56A5",
+        cms_soft_teal: "#68B8C4",
+        cms_golden_yellow: "#F1C75B",
+        cms_soft_pink: "#D884B0",
       },
     },
   },

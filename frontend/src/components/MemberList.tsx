@@ -224,7 +224,7 @@ const MemberList: React.FC<MemberListProps> = ({ currentClub, onMemberAdded }) =
         <div className="flex justify-between items-center">
           <h2 className="text-xl font-bold">Members List</h2>
           <button
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+            className="bg-cms_soft_teal text-white px-4 py-2 rounded hover:bg-cms_light_purple font-bold"
             onClick={() => setIsModalOpen(true)}
           >
             Add Member
@@ -285,7 +285,7 @@ const MemberList: React.FC<MemberListProps> = ({ currentClub, onMemberAdded }) =
         <div className="mt-2">
           <button
             onClick={handleSearch}
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+            className="bg-cms_soft_teal text-white px-4 py-2 rounded hover:bg-cms_light_purple font-bold"
           >
             Search
           </button>
@@ -299,11 +299,11 @@ const MemberList: React.FC<MemberListProps> = ({ currentClub, onMemberAdded }) =
           <table className="table-auto w-full border">
             <thead>
               <tr>
-                <th className="border px-4 py-2 text-left align-middle bg-navbar">Name</th>
-                <th className="border px-4 py-2 text-left align-middle bg-navbar">Student ID</th>
-                <th className="border px-4 py-2 text-left align-middle bg-navbar">Email</th>
-                <th className="border px-4 py-2 text-left align-middle bg-navbar">Major</th>
-                <th className="border px-4 py-2 text-left align-middle bg-navbar">Graduation Year</th>
+                <th className="border px-4 py-2 text-left align-middle bg-cms_light_purple">Name</th>
+                <th className="border px-4 py-2 text-left align-middle bg-cms_light_purple">Student ID</th>
+                <th className="border px-4 py-2 text-left align-middle bg-cms_light_purple">Email</th>
+                <th className="border px-4 py-2 text-left align-middle bg-cms_light_purple">Major</th>
+                <th className="border px-4 py-2 text-left align-middle bg-cms_light_purple">Graduation Year</th>
               </tr>
             </thead>
             <tbody>
@@ -346,7 +346,7 @@ const MemberList: React.FC<MemberListProps> = ({ currentClub, onMemberAdded }) =
                 key={page}
                 onClick={() => handlePageChange(page)}
                 className={`px-3 py-1 border rounded ${currentPage === page
-                  ? "bg-blue-600 text-white"
+                  ? "bg-cms_purple text-white"
                   : "bg-gray-200 text-gray-800 hover:bg-gray-300"
                   }`}
               >
@@ -392,8 +392,8 @@ const MemberList: React.FC<MemberListProps> = ({ currentClub, onMemberAdded }) =
       {/* Add Member Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-lg p-6 w-96">
-            <h2 className="text-lg font-bold text-black">Add New Member</h2>
+          <div className="bg-cms_purple rounded-lg shadow-lg p-6 w-96">
+            <h2 className="text-lg font-bold text-white">Add New Member</h2>
             <form className="space-y-4">
               <input
                 type="text"

@@ -16,12 +16,12 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ currentClub, setCurrentClub }) => {
   return (
-    <header className="bg-gray-800 text-white p-4 flex items-center justify-between">
+    <header className="bg-cms_dark_purple text-white p-4 flex items-center justify-between">
       <h1 className="text-2xl font-bold text-center flex-grow">
         {currentClub ? `${currentClub}` : "Welcome to the Club Management System!"}
       </h1>
       <button
-        className="text-white hover:text-navbar text-3xl ml-4"
+        className="text-white hover:text-cms_golden_yellow text-3xl ml-4"
         onClick={() => setCurrentClub(null)}
         title="Home"
       >

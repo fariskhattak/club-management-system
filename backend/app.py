@@ -532,6 +532,7 @@ def get_club_budget(club_id):
 
     # Format the response
     budget_details = {
+        "budget_id": budget.budget_id,
         "fiscal_year": budget.fiscal_year,
         "total_budget": budget.total_budget,
         "spent_amount": spent,
@@ -596,6 +597,122 @@ def update_budget(club_id):
             "remaining_amount": remaining_amount,
         }), 200
 
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+    
+
+@app.route("/api/clubs/<int:club_id>/expenses", methods=["GET"])
+def get_expenses_for_club(club_id):
+    expenses = Expense.query.filter_by(club_id=club_id).all()
+    if not expenses:
+        return jsonify({"message": "No expenses found for this club"}), 200
+
+    expense_list = [
+        {
+            "expense_id": expense.expense_id,
+            "expense_name": expense.expense_name,
+            "expense_amount": expense.expense_amount,
+            "expense_date": expense.expense_date.isoformat(),
+            "description": expense.description,
+            "category": expense.category,
+        }
+        for expense in expenses
+    ]
+    return jsonify({"expenses": expense_list}), 200
+
+
+@app.route("/api/clubs/<int:club_id>/expenses/search", methods=["GET"])
+def search_expenses(club_id):
+    name = request.args.get("expense_name", "").strip()
+    category = request.args.get("category", "").strip()
+    start_date = request.args.get("start_date")
+    end_date = request.args.get("end_date")
+
+    try:
+        # Build query filters
+        filters = [Expense.club_id == club_id]
+        if name:
+            filters.append(Expense.expense_name.ilike(f"%{name}%"))
+        if category:
+            filters.append(Expense.category.ilike(f"%{category}%"))
+        if start_date and end_date:
+            filters.append(
+                Expense.expense_date.between(
+                    datetime.strptime(start_date, "%Y-%m-%d"),
+                    datetime.strptime(end_date, "%Y-%m-%d"),
+                )
+            )
+
+        # Query expenses
+        expenses = Expense.query.filter(and_(*filters)).all()
+
+        expense_list = [
+            {
+                "expense_id": expense.expense_id,
+                "expense_name": expense.expense_name,
+                "expense_amount": expense.expense_amount,
+                "expense_date": expense.expense_date.isoformat(),
+                "description": expense.description,
+                "category": expense.category,
+            }
+            for expense in expenses
+        ]
+
+        return jsonify({"expenses": expense_list}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/clubs/<int:club_id>/expenses", methods=["POST"])
+def add_expense(club_id):
+    data = request.json
+    try:
+        # Validate input
+        if not data.get("expense_name") or not data.get("expense_amount") or not data.get("expense_date"):
+            return jsonify({"error": "Expense name, amount, and date are required"}), 400
+
+        # Parse expense date and determine fiscal year
+        expense_date = datetime.strptime(data["expense_date"], "%Y-%m-%d").date()
+        fiscal_year = expense_date.year
+
+        # Find the appropriate budget for the fiscal year
+        budget = Budget.query.filter_by(club_id=club_id, fiscal_year=fiscal_year).first()
+        if not budget:
+            return jsonify({"error": "No budget found for the given fiscal year"}), 404
+
+        # Create a new expense
+        new_expense = Expense(
+            club_id=club_id,
+            budget_id=budget.budget_id,
+            expense_name=data["expense_name"],
+            expense_amount=data["expense_amount"],
+            expense_date=expense_date,
+            description=data.get("description"),
+            category=data.get("category"),
+        )
+        db.session.add(new_expense)
+        db.session.commit()
+
+        return jsonify({"message": "Expense added successfully"}), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+
+
+
+@app.route("/api/clubs/<int:club_id>/expenses/<int:expense_id>", methods=["DELETE"])
+def delete_expense(club_id, expense_id):
+    try:
+        # Find the expense
+        expense = Expense.query.filter_by(club_id=club_id, expense_id=expense_id).first()
+        if not expense:
+            return jsonify({"error": "Expense not found"}), 404
+
+        # Delete the expense
+        db.session.delete(expense)
+        db.session.commit()
+        return jsonify({"message": "Expense deleted successfully"}), 200
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": str(e)}), 500

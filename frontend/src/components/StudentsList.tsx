@@ -50,7 +50,7 @@ const StudentList: React.FC = () => {
   }
 
   return (
-    <div className="bg-gradient-to-r from-purple-50 to-purple-100 shadow-lg rounded-lg p-6 max-w-5xl mx-auto">
+    <div className="bg-gradient-to-r from-purple-50 to-purple-100 shadow-lg rounded-lg p-6 max-w-5xl mx-auto text-black">
       <h2 className="text-3xl font-bold mb-6 text-center text-purple-900">
         Registered Students
       </h2>

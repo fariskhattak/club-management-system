@@ -97,7 +97,7 @@ const SponsorsList: React.FC<SponsorsListProps> = ({ clubId }) => {
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-bold text-black">Sponsorships</h2>
         <button
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          className="bg-cms_soft_teal text-white px-4 py-2 rounded hover:bg-cyan-700 font-bold"
           onClick={() => setIsModalOpen(true)}
         >
           Add Sponsor
@@ -111,13 +111,13 @@ const SponsorsList: React.FC<SponsorsListProps> = ({ clubId }) => {
         <table className="table-auto w-full border">
           <thead>
             <tr>
-              <th className="border px-4 py-2 text-left bg-navbar">Sponsor Name</th>
-              <th className="border px-4 py-2 text-left bg-navbar">Contact Person</th>
-              <th className="border px-4 py-2 text-left bg-navbar">Contact Email</th>
-              <th className="border px-4 py-2 text-left bg-navbar">Phone Number</th>
-              <th className="border px-4 py-2 text-left bg-navbar">Address</th>
-              <th className="border px-4 py-2 text-left bg-navbar">Contribution Amount</th>
-              <th className="border px-4 py-2 text-left bg-navbar">Contribution Date</th>
+              <th className="border px-4 py-2 text-left bg-cms_light_purple">Sponsor Name</th>
+              <th className="border px-4 py-2 text-left bg-cms_light_purple">Contact Person</th>
+              <th className="border px-4 py-2 text-left bg-cms_light_purple">Contact Email</th>
+              <th className="border px-4 py-2 text-left bg-cms_light_purple">Phone Number</th>
+              <th className="border px-4 py-2 text-left bg-cms_light_purple">Address</th>
+              <th className="border px-4 py-2 text-left bg-cms_light_purple">Contribution Amount</th>
+              <th className="border px-4 py-2 text-left bg-cms_light_purple">Contribution Date</th>
             </tr>
           </thead>
           <tbody>
