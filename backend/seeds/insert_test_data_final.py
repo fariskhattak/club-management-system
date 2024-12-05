@@ -120,6 +120,18 @@ data_to_insert = [
             (3, 3, "Lead"),
         ],
     ),
+    # Insert into EventAttendance
+    (
+        "INSERT INTO EventAttendance (event_id, student_id, attendance_status, check_in_time) VALUES (?, ?, ?, ?)",
+        [
+            (1, "S001", "Present", "09:45:00"),
+            (1, "S004", "Absent", None),
+            (2, "S002", "Present", "08:50:00"),
+            (2, "S005", "Present", "09:00:00"),
+            (3, "S003", "Present", "12:55:00"),
+            (3, "S006", "Absent", None),
+        ],
+    )
 ]
 
 # Execute all insertions
