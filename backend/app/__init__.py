@@ -10,7 +10,7 @@ def create_app(config_class="config.Config"):
     # Enable CORS
     CORS(
         app,
-        resources={r"/api/*": {"origins": "http://localhost:3000"}},
+        resources={r"/api/*": {"origins": ["http://localhost:3000", "https://club-management-system-frontend.onrender.com"]}},
         supports_credentials=True,
         allow_headers=["Content-Type", "Authorization"],
         methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
