@@ -6,6 +6,34 @@ from sqlalchemy import and_
 # Define the blueprint
 sponsors_bp = Blueprint("sponsors", __name__)
 
+# Route to get all registered sponsors
+@sponsors_bp.route("/", methods=["GET"])
+def get_all_sponsors():
+    """
+    Retrieve all sponsors across all clubs.
+    """
+    try:
+        # Query all sponsors
+        sponsors = Sponsor.query.all()
+
+        # Format sponsors for JSON response
+        sponsor_list = [
+            {
+                "sponsor_id": sponsor.sponsor_id,
+                "sponsor_name": sponsor.sponsor_name,
+                "contact_person": sponsor.contact_person,
+                "contact_email": sponsor.contact_email,
+                "phone_number": sponsor.phone_number,
+                "address": sponsor.address,
+            }
+            for sponsor in sponsors
+        ]
+
+        return jsonify({"sponsors": sponsor_list}), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 
 # Route to find all sponsors associated with a club
 @sponsors_bp.route("/<int:club_id>", methods=["GET"])

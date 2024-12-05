@@ -17,7 +17,7 @@ interface SponsorsListProps {
   clubId: number;
 }
 
-const SponsorsList: React.FC<SponsorsListProps> = ({ clubId }) => {
+const ContributionsList: React.FC<SponsorsListProps> = ({ clubId }) => {
   const [sponsors, setSponsors] = useState<Sponsor[]>([]);
   const [loadingSponsors, setLoadingSponsors] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -421,4 +421,4 @@ const SponsorsList: React.FC<SponsorsListProps> = ({ clubId }) => {
   );
 };
 
-export default SponsorsList;
+export default ContributionsList;

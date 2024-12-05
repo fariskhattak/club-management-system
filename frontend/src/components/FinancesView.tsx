@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import BudgetProgressBar from "@/components/BudgetProgressBar";
-import SponsorsList from "@/components/SponsorsList";
+import ContributionsList from "@/components/ContributionsList";
 import ExpensesList from "@/components/ExpensesList";
 
 interface Budget {
@@ -107,7 +107,7 @@ const FinancesView: React.FC<FinancesViewProps> = ({ currentClub }) => {
             {/* Sponsors Section */}
             <div className="mb-2">
                 {currentClub ? (
-                    <SponsorsList clubId={currentClub.club_id} />
+                    <ContributionsList clubId={currentClub.club_id} />
                 ) : (
                     <p className="text-gray-600 italic">Select a club to view its sponsors.</p>
                 )}

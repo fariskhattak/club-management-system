@@ -12,6 +12,8 @@ import SideNavbar from "../components/SideNavbar";
 import EventView from "../components/EventView";
 import OfficerList from "@/components/OfficerList";
 import FinancesView from "../components/FinancesView";
+import SponsorList from "@/components/SponsorList";
+import RolesList from "@/components/RolesList";
 
 interface Club {
   club_id: number;
@@ -142,18 +144,32 @@ export default function Home() {
         <Header currentClub={currentClub?.club_name || undefined} setCurrentClub={setCurrentClub} />
         <main className="p-4 relative">
           {currentClub === null ? (
-              <div className="flex flex-col items-center justify-center h-[calc(100vh-4rem)] bg-gray-50 rounded shadow">
-                <h2 className="text-2xl font-semibold text-gray-700">
-                  No Club Selected
-                </h2>
-                <p className="text-gray-500 my-2">
-                  Please select a club from the side navbar to view its details.
-                </p>
-                <div className="mt-10 bg-gray-50 rounded shadow">
+            <div className="flex flex-col items-center justify-center p-6 bg-gray-50 rounded shadow">
+              <h2 className="text-2xl font-semibold text-gray-700">
+                No Club Selected
+              </h2>
+              <p className="text-gray-500 my-2">
+                Please select a club from the side navbar to view its details.
+              </p>
+              <div className="mt-10 grid grid-cols-2 gap-4">
+                {/* Student List */}
+                <div className="bg-gray-50 rounded shadow p-4">
                   <StudentList />
+                </div>
+
+                {/* Sponsor List */}
+                <div className="bg-gray-50 rounded shadow p-4">
+                  <SponsorList />
                 </div>
               </div>
 
+              <div className="mt-6 w-full">
+                {/* Roles List */}
+                <div className="bg-gray-50 rounded shadow p-4">
+                  <RolesList />
+                </div>
+              </div>
+            </div>
           ) : (
             <>
               {/* Tab Navigation */}
