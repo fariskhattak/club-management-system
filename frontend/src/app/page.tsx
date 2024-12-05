@@ -36,7 +36,7 @@ export default function Home() {
 
   const fetchClubs = async () => {
     try {
-      const response = await fetch("http://localhost:5001/api/clubs");
+      const response = await fetch(`${process.env.NEXT_APP_API_URL}/api/clubs`);
       if (response.ok) {
         const data = await response.json();
         setClubs(data);
@@ -62,7 +62,7 @@ export default function Home() {
     if (!currentClub) return;
 
     try {
-      const response = await fetch(`http://localhost:5001/api/clubs/${currentClub.club_id}`, {
+      const response = await fetch(`${process.env.NEXT_APP_API_URL}/api/clubs/${currentClub.club_id}`, {
         method: "DELETE",
       });
 
