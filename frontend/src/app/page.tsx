@@ -25,7 +25,6 @@ interface Club {
 
 export default function Home() {
   const [clubs, setClubs] = useState<Club[]>([]);
-  const [loading, setLoading] = useState(true);
   const [currentClub, setCurrentClub] = useState<Club | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false); // Modal state
   const [refreshGraphTrigger, setRefreshGraphTrigger] = useState(0);
@@ -46,8 +45,6 @@ export default function Home() {
       }
     } catch (error) {
       console.error("Error fetching clubs:", error);
-    } finally {
-      setLoading(false);
     }
   };
 

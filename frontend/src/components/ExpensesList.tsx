@@ -33,7 +33,6 @@ interface ExpenseListProps {
 const ITEMS_PER_PAGE = 10;
 
 const ExpensesList: React.FC<ExpenseListProps> = ({ currentClub, fiscal_year, budget, setBudget }) => {
-    const [expenses, setExpenses] = useState<Expense[]>([]);
     const [filteredExpenses, setFilteredExpenses] = useState<Expense[]>([]);
     const [loading, setLoading] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -83,7 +82,6 @@ const ExpensesList: React.FC<ExpenseListProps> = ({ currentClub, fiscal_year, bu
             );
             if (response.ok) {
                 const data = await response.json();
-                setExpenses(data.expenses);
                 setFilteredExpenses(data.expenses || []);
             } else {
                 console.error("Failed to fetch expenses:", response.statusText);
@@ -146,7 +144,6 @@ const ExpensesList: React.FC<ExpenseListProps> = ({ currentClub, fiscal_year, bu
             );
     
             if (response.ok) {
-                const addedExpense = await response.json(); // Assuming the response returns the added expense
                 toast.success("Expense added successfully!");
     
                 // Update budget
@@ -210,7 +207,7 @@ const ExpensesList: React.FC<ExpenseListProps> = ({ currentClub, fiscal_year, bu
                 });
     
                 // Refresh expenses
-                setExpenses((prev) =>
+                setFilteredExpenses((prev) =>
                     prev.filter((exp) => exp.expense_id !== expenseToDelete.expense_id)
                 );
                 setIsDeleteModalOpen(false); // Close delete modal

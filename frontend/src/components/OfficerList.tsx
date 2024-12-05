@@ -142,8 +142,8 @@ const OfficerList: React.FC<OfficerListProps> = ({ currentClub }) => {
                 const errorData = await response.json();
                 toast.error(errorData.error || "Failed to remove officer.");
             }
-        } catch (error) {
-            toast.error("An error occurred while removing the officer.");
+        } catch {
+            toast.error("An error occurred while removing the officer");
         }
     };
 
