@@ -2,3 +2,5 @@ flask
 flask_sqlalchemy
 flask_cors
 sqlite3
+python-dotenv
+gunicorn
