@@ -173,13 +173,15 @@ const OfficerList: React.FC<OfficerListProps> = ({ currentClub }) => {
 
     return (
         <div className="text-black">
-            <h2 className="text-xl font-bold mb-4">Officers</h2>
-            <button
-                onClick={() => setShowModal(true)}
-                className="mb-4 px-4 py-2 bg-cms_soft_teal font-bold text-white rounded hover:bg-cyan-700"
-            >
-                Add Officer
-            </button>
+            <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-bold">Officers</h2>
+                <button
+                    onClick={() => setShowModal(true)}
+                    className="px-4 py-2 bg-cms_soft_teal font-bold text-white rounded hover:bg-cyan-700"
+                >
+                    Add Officer
+                </button>
+            </div>
             {loading ? (
                 <p>Loading officers...</p>
             ) : paginatedOfficers.length > 0 ? (
@@ -236,8 +238,8 @@ const OfficerList: React.FC<OfficerListProps> = ({ currentClub }) => {
                                 key={page}
                                 onClick={() => handlePageChange(page)}
                                 className={`px-3 py-1 border rounded ${currentPage === page
-                                        ? "bg-cms_purple text-white"
-                                        : "bg-gray-200 text-gray-800 hover:bg-gray-300"
+                                    ? "bg-cms_purple text-white"
+                                    : "bg-gray-200 text-gray-800 hover:bg-gray-300"
                                     }`}
                             >
                                 {page}
