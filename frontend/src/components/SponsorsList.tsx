@@ -48,7 +48,7 @@ const SponsorsList: React.FC<SponsorsListProps> = ({ clubId }) => {
     setLoadingSponsors(true);
     try {
       const query = new URLSearchParams(searchParams).toString();
-      const response = await fetch(`http://localhost:5001/api/clubs/${clubId}/sponsors/search?${query}`);
+      const response = await fetch(`http://localhost:5001/api/sponsors/${clubId}/search?${query}`);
 
       if (response.ok) {
         const data = await response.json();
@@ -78,7 +78,7 @@ const SponsorsList: React.FC<SponsorsListProps> = ({ clubId }) => {
   const fetchSponsors = async () => {
     setLoadingSponsors(true);
     try {
-      const response = await fetch(`http://localhost:5001/api/clubs/${clubId}/sponsors`);
+      const response = await fetch(`http://localhost:5001/api/sponsors/${clubId}`);
       if (response.ok) {
         const data = await response.json();
         setSponsors(data.sponsors);
@@ -99,7 +99,7 @@ const SponsorsList: React.FC<SponsorsListProps> = ({ clubId }) => {
 
   const handleAddSponsor = async () => {
     try {
-      const response = await fetch(`http://localhost:5001/api/clubs/${clubId}/sponsors`, {
+      const response = await fetch(`http://localhost:5001/api/sponsors/${clubId}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -140,7 +140,7 @@ const SponsorsList: React.FC<SponsorsListProps> = ({ clubId }) => {
 
     try {
       const response = await fetch(
-        `http://localhost:5001/api/clubs/${clubId}/sponsors/${sponsorToDelete.sponsorship_id}`,
+        `http://localhost:5001/api/sponsors/${clubId}/${sponsorToDelete.sponsorship_id}`,
         {
           method: "DELETE",
         }

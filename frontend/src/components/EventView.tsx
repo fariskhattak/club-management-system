@@ -42,8 +42,8 @@ const EventView: React.FC<EventViewProps> = ({ currentClub }) => {
     setLoadingEvents(true);
     try {
       const [upcomingResponse, pastResponse] = await Promise.all([
-        fetch(`http://localhost:5001/api/clubs/${currentClub.club_id}/events/upcoming`),
-        fetch(`http://localhost:5001/api/clubs/${currentClub.club_id}/events/past`),
+        fetch(`http://localhost:5001/api/events/${currentClub.club_id}/upcoming`),
+        fetch(`http://localhost:5001/api/events/${currentClub.club_id}/past`),
       ]);
 
       if (upcomingResponse.ok && pastResponse.ok) {

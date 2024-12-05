@@ -79,7 +79,7 @@ const ExpensesList: React.FC<ExpenseListProps> = ({ currentClub, fiscal_year, bu
         setLoading(true);
         try {
             const response = await fetch(
-                `http://localhost:5001/api/clubs/${currentClub.club_id}/expenses?fiscal_year=${fiscal_year}`
+                `http://localhost:5001/api/expenses/${currentClub.club_id}?fiscal_year=${fiscal_year}`
             );
             if (response.ok) {
                 const data = await response.json();
@@ -108,7 +108,7 @@ const ExpensesList: React.FC<ExpenseListProps> = ({ currentClub, fiscal_year, bu
             const query = new URLSearchParams(searchParams).toString();
             console.log(query)
             const response = await fetch(
-                `http://localhost:5001/api/clubs/${currentClub.club_id}/expenses/search?${query}&fiscal_year=${fiscal_year}`
+                `http://localhost:5001/api/expenses/${currentClub.club_id}/search?${query}&fiscal_year=${fiscal_year}`
             );
 
             if (response.ok) {
@@ -129,45 +129,6 @@ const ExpensesList: React.FC<ExpenseListProps> = ({ currentClub, fiscal_year, bu
         }
     };
 
-
-    // const handleAddExpense = async () => {
-    //     if (!currentClub) {
-    //         toast.error("No club selected.");
-    //         return;
-    //     }
-
-    //     try {
-    //         const response = await fetch(
-    //             `http://localhost:5001/api/clubs/${currentClub.club_id}/expenses`,
-    //             {
-    //                 method: "POST",
-    //                 headers: { "Content-Type": "application/json" },
-    //                 body: JSON.stringify(formData),
-    //             }
-    //         );
-
-    //         if (response.ok) {
-    //             toast.success("Expense added successfully!");
-    //             setIsModalOpen(false); // Close modal
-    //             setFormData({
-    //                 budget_id: 0,
-    //                 expense_name: "",
-    //                 expense_amount: "",
-    //                 expense_date: "",
-    //                 description: "",
-    //                 category: "",
-    //             }); // Reset form fields
-    //             fetchExpenses(); // Refresh expenses
-    //         } else {
-    //             const errorData = await response.json();
-    //             toast.error(errorData.error || "Failed to add expense.");
-    //         }
-    //     } catch (error) {
-    //         console.error("Error adding expense:", error);
-    //         toast.error("An error occurred while adding the expense.");
-    //     }
-    // };
-
     const handleAddExpense = async () => {
         if (!currentClub || !budget) {
             toast.error("No club or budget selected.");
@@ -176,7 +137,7 @@ const ExpensesList: React.FC<ExpenseListProps> = ({ currentClub, fiscal_year, bu
     
         try {
             const response = await fetch(
-                `http://localhost:5001/api/clubs/${currentClub.club_id}/expenses`,
+                `http://localhost:5001/api/expenses/${currentClub.club_id}`,
                 {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -231,7 +192,7 @@ const ExpensesList: React.FC<ExpenseListProps> = ({ currentClub, fiscal_year, bu
     
         try {
             const response = await fetch(
-                `http://localhost:5001/api/clubs/${currentClub.club_id}/expenses/${expenseToDelete.expense_id}`,
+                `http://localhost:5001/api/expenses/${currentClub.club_id}/${expenseToDelete.expense_id}`,
                 { method: "DELETE" }
             );
     
