@@ -1,6 +1,10 @@
 import os
+from dotenv import load_dotenv
 from app import create_app
 from app.models import db
+
+# Load environment variables
+load_dotenv()
 
 # Load environment variable for the Flask configuration
 FLASK_ENV = os.getenv("FLASK_ENV", "development")
