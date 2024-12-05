@@ -10,7 +10,7 @@ import MajorGraph from "../components/MajorGraph";
 import GraduationGraph from "../components/GraduationGraph";
 import SideNavbar from "../components/SideNavbar";
 import EventView from "../components/EventView";
-import LineGraph from "@/components/LineGraph";
+import OfficerList from "@/components/OfficerList";
 import FinancesView from "../components/FinancesView";
 
 interface Club {
@@ -105,6 +105,10 @@ export default function Home() {
                   refreshGraphTrigger={refreshGraphTrigger}
                 />
               </div>
+            </div>
+
+            <div className="bg-white p-4 shadow rounded">
+              <OfficerList currentClub={currentClub} />
             </div>
 
             {/* Member List */}

@@ -13,7 +13,9 @@ from app.models import (
     Membership,
     Budget,
     Event,
-    EventAttendance
+    EventAttendance,
+    Role,
+    ClubRole
 )
 
 # Define the blueprint
@@ -425,6 +427,113 @@ def add_budget(club_id):
         db.session.commit()
 
         return jsonify({"message": "Budget added successfully"}), 201
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+    
+
+@clubs_bp.route("/<int:club_id>/officers", methods=["GET"])
+def get_club_officers(club_id):
+    try:
+        # Query the ClubRoles and join with Students and Roles tables
+        officers = (
+            db.session.query(
+                Student.student_id,
+                Student.first_name,
+                Student.last_name,
+                Student.email,
+                Student.phone_number,
+                Role.role_id,
+                Role.role_name,
+                Role.role_description,
+            )
+            .join(ClubRole, ClubRole.student_id == Student.student_id)
+            .join(Role, ClubRole.role_id == Role.role_id)
+            .filter(ClubRole.club_id == club_id)
+            .all()
+        )
+
+        if not officers:
+            return jsonify({"message": "No officers found for this club"}), 404
+
+        # Format the response
+        officer_list = [
+            {
+                "student_id": officer.student_id,
+                "first_name": officer.first_name,
+                "last_name": officer.last_name,
+                "email": officer.email,
+                "phone_number": officer.phone_number,
+                "role_id": officer.role_id,
+                "role_name": officer.role_name,
+                "role_description": officer.role_description,
+            }
+            for officer in officers
+        ]
+
+        return jsonify({"officers": officer_list}), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+
+@clubs_bp.route("/<int:club_id>/officers", methods=["POST"])
+def add_officer_to_club(club_id):
+    """
+    Add an officer to a specific club, ensuring they are a member first.
+    """
+    data = request.json
+    student_id = data.get("student_id")
+    role_id = data.get("role_id")
+
+    if not student_id or not role_id:
+        return jsonify({"error": "student_id and role_id are required"}), 400
+
+    try:
+        # Check if the student is a member of the club
+        membership = Membership.query.filter_by(club_id=club_id, student_id=student_id).first()
+        if not membership:
+            return jsonify({"error": "Student is not a member of the club"}), 400
+
+        # Check if the officer already exists in the ClubRole table
+        existing_officer = ClubRole.query.filter_by(
+            club_id=club_id, student_id=student_id, role_id=role_id
+        ).first()
+        if existing_officer:
+            return jsonify({"error": "Student already holds this role in the club"}), 400
+
+        # Add the officer
+        new_officer = ClubRole(club_id=club_id, student_id=student_id, role_id=role_id)
+        db.session.add(new_officer)
+        db.session.commit()
+
+        return jsonify({"message": "Officer added successfully"}), 201
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+
+
+
+@clubs_bp.route("/<int:club_id>/officers/<string:student_id>/<int:role_id>", methods=["DELETE"])
+def delete_officer_from_club(club_id, student_id, role_id):
+    """
+    Delete an officer from a specific club.
+    """
+    try:
+        # Check if the officer exists in the ClubRole table
+        officer = ClubRole.query.filter_by(
+            club_id=club_id, student_id=student_id, role_id=role_id
+        ).first()
+        if not officer:
+            return jsonify({"error": "Officer not found in this role for the club"}), 404
+
+        # Remove the officer
+        db.session.delete(officer)
+        db.session.commit()
+
+        return jsonify({"message": "Officer removed successfully"}), 200
 
     except Exception as e:
         db.session.rollback()
