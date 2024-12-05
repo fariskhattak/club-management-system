@@ -57,7 +57,7 @@ const ExpensesList: React.FC<ExpenseListProps> = ({ currentClub, fiscal_year, bu
 
     const fetchCategories = async () => {
         try {
-            const response = await fetch("http://localhost:5001/api/expenses/categories");
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/expenses/categories`);
             if (response.ok) {
                 const data = await response.json();
                 setCategories(data.categories);
@@ -79,7 +79,7 @@ const ExpensesList: React.FC<ExpenseListProps> = ({ currentClub, fiscal_year, bu
         setLoading(true);
         try {
             const response = await fetch(
-                `http://localhost:5001/api/expenses/${currentClub.club_id}?fiscal_year=${fiscal_year}`
+                `${process.env.NEXT_PUBLIC_API_URL}/expenses/${currentClub.club_id}?fiscal_year=${fiscal_year}`
             );
             if (response.ok) {
                 const data = await response.json();
@@ -108,7 +108,7 @@ const ExpensesList: React.FC<ExpenseListProps> = ({ currentClub, fiscal_year, bu
             const query = new URLSearchParams(searchParams).toString();
             console.log(query)
             const response = await fetch(
-                `http://localhost:5001/api/expenses/${currentClub.club_id}/search?${query}&fiscal_year=${fiscal_year}`
+                `${process.env.NEXT_PUBLIC_API_URL}/expenses/${currentClub.club_id}/search?${query}&fiscal_year=${fiscal_year}`
             );
 
             if (response.ok) {
@@ -137,7 +137,7 @@ const ExpensesList: React.FC<ExpenseListProps> = ({ currentClub, fiscal_year, bu
     
         try {
             const response = await fetch(
-                `http://localhost:5001/api/expenses/${currentClub.club_id}`,
+                `${process.env.NEXT_PUBLIC_API_URL}/expenses/${currentClub.club_id}`,
                 {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -192,7 +192,7 @@ const ExpensesList: React.FC<ExpenseListProps> = ({ currentClub, fiscal_year, bu
     
         try {
             const response = await fetch(
-                `http://localhost:5001/api/expenses/${currentClub.club_id}/${expenseToDelete.expense_id}`,
+                `${process.env.NEXT_PUBLIC_API_URL}/expenses/${currentClub.club_id}/${expenseToDelete.expense_id}`,
                 { method: "DELETE" }
             );
     

@@ -454,8 +454,9 @@ def get_club_officers(club_id):
             .all()
         )
 
+        # If no officers are found, return an empty array
         if not officers:
-            return jsonify({"message": "No officers found for this club"}), 404
+            return jsonify({"officers": []}), 200
 
         # Format the response
         officer_list = [
@@ -476,6 +477,7 @@ def get_club_officers(club_id):
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
     
 
 @clubs_bp.route("/<int:club_id>/officers", methods=["POST"])

@@ -9,7 +9,7 @@
 - Austin Cao
 
 ## Project Overview
-The **College Club Management System** is designed to manage and organize data related to student clubs and organizations on campus. The system includes detailed information on clubs, members, events, roles, budgets, and sponsors.
+The **College Club Management System** is designed to manage and organize data related to student clubs and organizations on campus. The system includes detailed information on clubs, members, events, roles, budgets, expenses, and sponsors.
 
 ### Database Components
 - **Clubs**: Contains details on various clubs and organizations on campus.
@@ -18,6 +18,7 @@ The **College Club Management System** is designed to manage and organize data r
 - **Event Attendance**: Tracks student attendance at events, linking events and members.
 - **Roles**: Defines club member roles (e.g., President, Treasurer) and links them to members.
 - **Budget**: Manages financial records and budget allocations for each club.
+- **Expenses**: Tracks expenditures for clubs, linking them to budgets and events.
 - **Sponsors**: Lists sponsors supporting each club, linked to clubs and budgets.
 
 ## Backend Setup
@@ -47,17 +48,24 @@ The backend is built using **Flask** (Python) and handles the server-side logic,
    - The `schema.sql` file contains the database schema.
    - Run the following command to set up the SQLite database:
      ```bash
+     # If you are already in /backend
+     cd instance
      sqlite3 database.db < schema.sql
      ```
+   - **Note**: The database will automatically be set up with seed data when starting up the backend if this step is skipped
 
 4. **Configuration:**
    - Configure your settings in `config.py` as needed (e.g., database URI).
 
 5. **Run the Backend Server:**
    ```bash
-   python app.py
+   python run.py
    ```
    - The backend will start on `http://localhost:5001`.
+
+6. **Test Queries:**
+   - Test queries are located in `/tests/test_queries.sql`.
+   - There are 5 queries designed to interact with the database in different ways.
 
 ## Frontend Setup
 

@@ -60,7 +60,7 @@ const MemberList: React.FC<MemberListProps> = ({ currentClub, onMemberAdded }) =
     setLoading(true);
     try {
       const response = await fetch(
-        `http://localhost:5001/api/clubs/${currentClub.club_id}/members`
+        `${process.env.NEXT_PUBLIC_API_URL}/clubs/${currentClub.club_id}/members`
       );
       if (response.ok) {
         const data = await response.json();
@@ -82,7 +82,7 @@ const MemberList: React.FC<MemberListProps> = ({ currentClub, onMemberAdded }) =
     try {
       const query = new URLSearchParams(searchParams).toString();
       const response = await fetch(
-        `http://localhost:5001/api/clubs/${currentClub.club_id}/members/search?${query}`
+        `${process.env.NEXT_PUBLIC_API_URL}/clubs/${currentClub.club_id}/members/search?${query}`
       );
 
       if (response.ok) {
@@ -119,7 +119,7 @@ const MemberList: React.FC<MemberListProps> = ({ currentClub, onMemberAdded }) =
     }
 
     try {
-      const response = await fetch(`http://localhost:5001/api/clubs/${currentClub.club_id}/members`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/clubs/${currentClub.club_id}/members`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -165,7 +165,7 @@ const MemberList: React.FC<MemberListProps> = ({ currentClub, onMemberAdded }) =
 
     try {
       const response = await fetch(
-        `http://localhost:5001/api/clubs/${currentClub.club_id}/members/${memberToDelete.student_id}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/clubs/${currentClub.club_id}/members/${memberToDelete.student_id}`,
         {
           method: "DELETE",
         }

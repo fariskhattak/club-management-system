@@ -55,7 +55,7 @@ const EventView: React.FC<EventViewProps> = ({ currentClub }) => {
 
     try {
       const response = await fetch(
-        `http://localhost:5001/api/events/${selectedEventId}/attendance`,
+        `${process.env.NEXT_PUBLIC_API_URL}/events/${selectedEventId}/attendance`,
         {
           method: "POST",
           headers: {
@@ -90,7 +90,7 @@ const EventView: React.FC<EventViewProps> = ({ currentClub }) => {
 
     try {
       const response = await fetch(
-        `http://localhost:5001/api/events/${selectedEventId}/attendance/${attendanceId}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/events/${selectedEventId}/attendance/${attendanceId}`,
         { method: "DELETE" }
       );
 
@@ -121,8 +121,8 @@ const EventView: React.FC<EventViewProps> = ({ currentClub }) => {
     setLoadingEvents(true);
     try {
       const [upcomingResponse, pastResponse] = await Promise.all([
-        fetch(`http://localhost:5001/api/events/${currentClub.club_id}/upcoming`),
-        fetch(`http://localhost:5001/api/events/${currentClub.club_id}/past`),
+        fetch(`${process.env.NEXT_PUBLIC_API_URL}/events/${currentClub.club_id}/upcoming`),
+        fetch(`${process.env.NEXT_PUBLIC_API_URL}/events/${currentClub.club_id}/past`),
       ]);
 
       if (upcomingResponse.ok && pastResponse.ok) {
@@ -144,7 +144,7 @@ const EventView: React.FC<EventViewProps> = ({ currentClub }) => {
   const fetchAttendance = async (eventId: number) => {
     setLoadingAttendance(true);
     try {
-      const response = await fetch(`http://localhost:5001/api/events/${eventId}/attendance`);
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/events/${eventId}/attendance`);
       if (response.ok) {
         const data = await response.json();
         setAttendance(data.attendance);
@@ -184,7 +184,7 @@ const EventView: React.FC<EventViewProps> = ({ currentClub }) => {
 
     try {
       const response = await fetch(
-        `http://localhost:5001/api/events/${currentClub.club_id}/events`,
+        `${process.env.NEXT_PUBLIC_API_URL}/events/${currentClub.club_id}/events`,
         {
           method: "POST",
           headers: {
@@ -221,7 +221,7 @@ const EventView: React.FC<EventViewProps> = ({ currentClub }) => {
 
     try {
       const response = await fetch(
-        `http://localhost:5001/api/events/${currentClub.club_id}/${eventToDelete.event_id}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/events/${currentClub.club_id}/${eventToDelete.event_id}`,
         {
           method: "DELETE",
         }

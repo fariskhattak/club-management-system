@@ -50,7 +50,7 @@ const OfficerList: React.FC<OfficerListProps> = ({ currentClub }) => {
         setLoading(true);
         try {
             const response = await fetch(
-                `http://localhost:5001/api/clubs/${currentClub.club_id}/officers`
+                `${process.env.NEXT_PUBLIC_API_URL}/clubs/${currentClub.club_id}/officers`
             );
             if (response.ok) {
                 const data = await response.json();
@@ -67,7 +67,7 @@ const OfficerList: React.FC<OfficerListProps> = ({ currentClub }) => {
 
     const fetchRoles = async () => {
         try {
-            const response = await fetch("http://localhost:5001/api/roles/");
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/roles/`);
             if (response.ok) {
                 const data = await response.json();
                 setRoles(data.roles);
@@ -83,7 +83,7 @@ const OfficerList: React.FC<OfficerListProps> = ({ currentClub }) => {
         if (!currentClub) return;
         try {
             const response = await fetch(
-                `http://localhost:5001/api/clubs/${currentClub.club_id}/officers`,
+                `${process.env.NEXT_PUBLIC_API_URL}/clubs/${currentClub.club_id}/officers`,
                 {
                     method: "POST",
                     headers: {
@@ -117,7 +117,7 @@ const OfficerList: React.FC<OfficerListProps> = ({ currentClub }) => {
 
         try {
             const response = await fetch(
-                `http://localhost:5001/api/clubs/${currentClub.club_id}/officers/${officerToDelete.student_id}/${officerToDelete.role_id}`,
+                `${process.env.NEXT_PUBLIC_API_URL}/clubs/${currentClub.club_id}/officers/${officerToDelete.student_id}/${officerToDelete.role_id}`,
                 {
                     method: "DELETE",
                 }

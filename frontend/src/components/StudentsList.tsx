@@ -16,7 +16,7 @@ const StudentList: React.FC = () => {
   useEffect(() => {
     const fetchStudents = async () => {
       try {
-        const response = await fetch("http://localhost:5001/api/students/");
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/students/`);
         if (response.ok) {
           const data = await response.json();
           setStudents(data.students);

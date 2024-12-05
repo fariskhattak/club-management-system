@@ -26,7 +26,7 @@ const BudgetBarChart: React.FC<{ clubId: number }> = ({ clubId }) => {
   useEffect(() => {
     const fetchBudget = async () => {
       try {
-        const response = await fetch(`http://localhost:5001/api/clubs/${clubId}/budget`);
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/clubs/${clubId}/budget`);
         if (response.ok) {
           const data = await response.json();
           if (data.message === "No budget data found") {

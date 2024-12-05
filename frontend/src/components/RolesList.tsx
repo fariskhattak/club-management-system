@@ -13,7 +13,7 @@ const RolesList: React.FC = () => {
   useEffect(() => {
     const fetchRoles = async () => {
       try {
-        const response = await fetch("http://localhost:5001/api/roles/");
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/roles/`);
         if (response.ok) {
           const data = await response.json();
           setRoles(data.roles);

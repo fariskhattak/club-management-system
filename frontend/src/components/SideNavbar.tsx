@@ -36,7 +36,7 @@ const SideNavbar: React.FC<SideNavbarProps> = ({ clubs, onSelectClub, refreshClu
     }
 
     try {
-      const response = await fetch("http://localhost:5001/api/clubs/", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/clubs/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

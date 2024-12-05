@@ -24,7 +24,7 @@ const FinancesView: React.FC<FinancesViewProps> = ({ currentClub }) => {
 
     const fetchFiscalYears = async () => {
         try {
-            const response = await fetch(`http://localhost:5001/api/clubs/${currentClub?.club_id}/budget/years`);
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/clubs/${currentClub?.club_id}/budget/years`);
             if (response.ok) {
                 const data = await response.json();
                 setFiscalYears(data.fiscal_years)
@@ -45,7 +45,7 @@ const FinancesView: React.FC<FinancesViewProps> = ({ currentClub }) => {
         setLoading(true);
         try {
             const response = await fetch(
-                `http://localhost:5001/api/clubs/${currentClub?.club_id}/budget?fiscal_year=${year}`
+                `${process.env.NEXT_PUBLIC_API_URL}/clubs/${currentClub?.club_id}/budget?fiscal_year=${year}`
             );
             if (response.ok) {
                 const data = await response.json();

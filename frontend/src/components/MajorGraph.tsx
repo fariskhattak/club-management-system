@@ -40,7 +40,7 @@ const MajorGraph: React.FC<PieGraphProps> = ({ currentClub, refreshGraphTrigger 
 
       setLoading(true);
       try {
-        const response = await fetch(`http://localhost:5001/api/clubs/${currentClub.club_id}/members`);
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/clubs/${currentClub.club_id}/members`);
         if (response.ok) {
           const data = await response.json();
           const members = data["members"]

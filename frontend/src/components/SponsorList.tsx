@@ -16,7 +16,7 @@ const SponsorList: React.FC = () => {
   useEffect(() => {
     const fetchSponsors = async () => {
       try {
-        const response = await fetch("http://localhost:5001/api/sponsors/");
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/sponsors/`);
         if (response.ok) {
           const data = await response.json();
           setSponsors(data.sponsors);

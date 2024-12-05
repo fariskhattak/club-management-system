@@ -43,7 +43,7 @@ const BudgetProgressBar: React.FC<BudgetProgressBarProps> = ({
 
     try {
       const response = await fetch(
-        `http://localhost:5001/api/clubs/${clubId}/budget/update`,
+        `${process.env.NEXT_PUBLIC_API_URL}/clubs/${clubId}/budget/update`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -84,7 +84,7 @@ const BudgetProgressBar: React.FC<BudgetProgressBarProps> = ({
 
     try {
       const response = await fetch(
-        `http://localhost:5001/api/clubs/${clubId}/budget`,
+        `${process.env.NEXT_PUBLIC_API_URL}/clubs/${clubId}/budget`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
