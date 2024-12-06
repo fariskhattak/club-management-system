@@ -21,6 +21,11 @@ The **College Club Management System** is designed to manage and organize data r
 - **Expenses**: Tracks expenditures for clubs, linking them to budgets and events.
 - **Sponsors**: Lists sponsors supporting each club, linked to clubs and budgets.
 
+## Project Hosting
+
+The project is currently being hosted on Render, with the website [https://club-management-system-frontend.onrender.com](https://club-management-system-frontend.onrender.com), for the foreseeable future.
+If the project becomes unavailable at that link, look to [Backend Setup](#Backend-Setup) and [Frontend Setup](#Frontend-Setup) sections for hosting locally.
+
 ## Backend Setup
 
 The backend is built using **Flask** (Python) and handles the server-side logic, including API endpoints and database management.
