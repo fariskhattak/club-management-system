@@ -1,7 +1,7 @@
 import sqlite3
 
 # Establish a connection to the SQLite database (or create one if it doesn't exist)
-conn = sqlite3.connect("./instance/database.db")
+conn = sqlite3.connect("../instance/database.db")
 cursor = conn.cursor()
 
 # Insert data into the database

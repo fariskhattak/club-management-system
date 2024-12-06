@@ -11,7 +11,7 @@ SELECT
 FROM
     STUDENTS S
 JOIN
-    CLUB_ROLES CR ON CR.student_id = S.student_id
+    CLUBROLES CR ON CR.student_id = S.student_id
 JOIN
     ROLES R ON CR.role_id = r.role_id
 WHERE
@@ -40,14 +40,14 @@ FROM
     Expenses
 WHERE 
     club_id = 1
-    AND expense_date BETWEEN '2023-01-01' AND '2023-12-31';
+    AND expense_date BETWEEN '2026-01-01' AND '2026-12-31';
 
 -- Add a New Member and Assign a Role
 BEGIN TRANSACTION;
 INSERT INTO Students (student_id, first_name, last_name, email, phone_number, major, graduation_year)
 VALUES 
     ('S12345', 'Carl', 'Jacobs', 'carl.jacobs@university.edu', '987-444-3232', 'Computer Science', 2025);
-INSERT INTO Memberships (club_id, student_id, active_status)
+INSERT INTO Membership (club_id, student_id, active_status)
 VALUES 
     (1, 'S12345', 'Active');
 INSERT INTO ClubRoles (club_id, student_id, role_id)
@@ -69,7 +69,7 @@ SELECT
 FROM 
     Sponsors S
 JOIN 
-    SponsorshipContributions SC ON S.sponsor_id = SC.sponsor_id
+    SponsorshipContribution SC ON S.sponsor_id = SC.sponsor_id
 WHERE 
     SC.club_id = 1
     AND SC.contribution_date BETWEEN '2024-01-01' AND '2024-12-31';
